@@ -3,7 +3,7 @@
 
 # 解決方法二：使用 HLS 流錄製
 # 如果使用 HLS 流錄製，可以有效避免這些問題。Streamlink 支持將直播流轉換為 HLS 流。
-
+ 
 # 成功  也會毀損y
 import cv2
 import subprocess
