@@ -1,0 +1,29 @@
+div.box {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  background-color: rgba(0, 153, 255, 0.384);
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.5s;
+
+  div.container {
+    transition: opacity 0.5s;
+    opacity: 0;
+  }
+  &.visible {
+    background-color: rgba(156, 224, 255, 0.712);
+    div.container {
+      opacity: 1;
+    }
+  }
+  // &.leave{
+  // 	background-color: rgba(0, 153, 255, 0);
+  // 	div.container{
+  // 		opacity: 0;
+  // 	}
+  // }
+}

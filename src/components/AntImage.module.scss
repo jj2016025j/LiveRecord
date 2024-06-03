@@ -1,0 +1,36 @@
+.box {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  height: 110px;
+  width: 110px;
+  img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.funs {
+  width: 95%;
+  height: 95%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+	transition: all 0.5s ease-in-out;
+	opacity: 0;
+  .col {
+    margin-right: 5px;
+  }
+  &:hover {
+		opacity: 1;
+    background-color: rgb(200, 200, 200, 0.5);
+  }
+}

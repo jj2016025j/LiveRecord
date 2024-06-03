@@ -1,0 +1,121 @@
+@import "@/assets/color.module.scss";
+
+div.paper {
+  width: 21cm;
+  height: 29.7cm;
+  padding: 1cm;
+  display: flex;
+  flex-direction: column;
+  &.horizontal {
+    width: 29.7cm;
+    height: 21cm;
+  }
+}
+
+div.box-title {
+  height: 4cm;
+  div.header {
+    display: flex;
+    width: 100%;
+    align-items: start;
+    justify-content: space-between;
+    .tag {
+      background-color: rgba(128, 128, 128, 0.466);
+      padding: 0.1cm;
+      color: black;
+    }
+  }
+  div.counter-info {
+    display: flex;
+    width: 100%;
+    align-items: start;
+    justify-content: space-between;
+  }
+}
+
+div.box-content {
+  height: calc(100% - 4cm);
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  .row {
+    &.horizontal {
+      display: grid;
+      grid-column: auto / auto;
+    }
+  }
+}
+
+table.table-crypto {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 0.5cm;
+  text-align: center;
+  tbody {
+    font-weight: 500;
+    // 金額靠右
+    tr {
+      td:nth-last-child(-n + 2) {
+        text-align: right;
+        padding-right: 1.7cm;
+      }
+    }
+  }
+  thead {
+    color: white;
+    background-color: $header;
+    th {
+      width: 25%;
+    }
+  }
+  .tb-cal {
+    .tr-buy {
+      color: blue;
+    }
+    .tr-sell {
+      color: red;
+    }
+  }
+  .tb-subtotal {
+    border-top: 1px solid $capture;
+  }
+  &.horizontal {
+    border: 2px solid red;
+    width: 45%;
+  }
+}
+
+.text-capture {
+  color: $capture;
+  font-weight: 900;
+}
+
+.box-summary {
+  padding: 0.2cm;
+  font-size: 14px;
+  color: $capture;
+  .box-result {
+    border-top: 1px solid $capture;
+    margin-top: 0.1cm;
+    padding-top: 0.1cm;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 900;
+    strong {
+      color: black;
+    }
+    span {
+      color: green;
+    }
+  }
+}
+
+.box-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
