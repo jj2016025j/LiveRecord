@@ -139,8 +139,8 @@ def main():
     'https://edge13-sin.live.mmcdn.com/live-edge/amlst:thebrokebabe-sd-ccbfe89ca76981bb9a29387eb32295007d7245f3716266a418b4dd73adaae40a_trns_h264/chunklist_w656269847_b3096000_t64RlBTOjMwLjA=.m3u8',
     'https://edge16-nrt.live.mmcdn.com/live-edge/amlst:blue_eye_twinkle-sd-cf7a1a30465a6b58a0924ae70379d3afd6151e11870b986caae423f4c2472ef6_trns_h264/chunklist_w1238261676_b5128000_t64RlBTOjMwLjA=.m3u8',
     'https://edge8-nrt.live.mmcdn.com/live-edge/amlst:mariemelons-sd-65dfe7dd48dd5ec616e307709f8197fe89f61cb69bbd7e87091776b800c14576_trns_h264/chunklist_w1655035229_b5128000_t64RlBTOjMwLjA=.m3u8',
+    'https://edge8-nrt.live.mmcdn.com/live-edge/amlst:sloppy_wine_420-sd-72614e55d51d5db997f5b44109efc51736e3f91a7f5f3c13aea5fa343590d120_trns_h264/chunklist_w482507386_b5128000_t64RlBTOjMwLjA=.m3u8',
 ]   
-
 
     # streams = {
     #     # 'https://www.youtube.com/watch?v=21X5lGlDOfg': 'youtube_test1.mp4',
