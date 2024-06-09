@@ -1,6 +1,7 @@
 import { Card, Space, DatePicker, Input, Tabs, TabsProps, Button } from 'antd';
 import { useHxStatus } from './useHxStatus';
 import ChannelHistory from './components/ChannelHistory';
+import { useDeleteChannels } from '@/api/transaction/useDeleteChannels';
 const { RangePicker } = DatePicker;
 
 interface IHistoryPageProps { }
@@ -8,7 +9,7 @@ const HistoryPage: React.FunctionComponent<IHistoryPageProps> = (props) => {
   const { } = props;
   const [state, dispatch] = useHxStatus();
   const { dateFrom, dateTo, searchInput } = state;
-
+  const { mutate: deleteChannels } = useDeleteChannels();
   const items: TabsProps['items'] = [
     {
       key: '1',
@@ -36,6 +37,7 @@ const HistoryPage: React.FunctionComponent<IHistoryPageProps> = (props) => {
                 loading={false}
                 type='text'
                 htmlType='submit'
+                onClick={() => { deleteChannels({ id: '' }) }}
               >
                 刪除
               </Button>

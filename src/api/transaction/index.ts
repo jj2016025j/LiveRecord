@@ -4,4 +4,4 @@ export * from './useStoreComplete';
 export * from './useUpdateListStatus';
 export * from './useQueryChannel';
 export * from './useUpdateListStatus'
-export * from './useTxVolumeData'
+export * from './useDeleteChannels'
