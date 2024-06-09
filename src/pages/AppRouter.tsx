@@ -4,11 +4,7 @@ import StaticLeader from '../components/StaticLeader';
 
 const ProtectedLayout = lazy(() => import('./layouts/ProtectedLayout'));
 const Dashboard = lazy(() => import('../pages/dashboard/DashboardPage'));
-const MemberPage = lazy(() => import('../pages/member/MemberPage'));
-const MemberDetail = lazy(() => import('../pages/member/detail/DetailPage'));
-const ShiftPage = lazy(() => import('../pages/shift/ShiftPage'));
 const HistoryPage = lazy(() => import('./history/LiveList'));
-const ChatPage = lazy(() => import('../pages/chat/ChatPage'));
 
 const NotFound = lazy(() => import('../pages/NotFound'));
 
@@ -27,27 +23,9 @@ const ProviteRoutes = () => {
           index
           element={<Dashboard />}
         />
-        {/* member detail 與 index 同級所以不做巢狀注意將detail的查詢優先index */}
-        <Route
-          path='member/detail'
-          element={<MemberDetail />}
-        />
-        <Route
-          path='member'
-          element={<MemberPage />}
-        />
-        <Route
-          path='shift'
-          element={<ShiftPage />}
-        />
         <Route
           path='history'
           element={<HistoryPage />}
-        />
-
-        <Route
-          path='chat'
-          element={<ChatPage />}
         />
 
         {/* <Route

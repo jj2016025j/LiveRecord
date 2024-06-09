@@ -8,7 +8,6 @@ import AppRouter from './pages/AppRouter';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import NotifyProvider from './components/NotifyProvider';
-import TestAuth from './pages/test/TestAuth';
 
 const App: React.FunctionComponent = () => {
   const queryClient = new QueryClient();
@@ -17,7 +16,6 @@ const App: React.FunctionComponent = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <NotifyProvider />
-        <TestAuth {...{ isTest: false }} />
 
         <Suspense fallback={<FallbackLoading />}>
           <ConfigProvider
