@@ -1,3 +1,4 @@
+import { useUpdateListStatus } from '@/api';
 import { ChannelStatus } from '@/utils';
 import { TableProps, Typography, Image, Checkbox, Button } from 'antd';
 
@@ -9,7 +10,19 @@ const liveOptions = [
 const { Text } = Typography;
 
 const maxLength = 30
-const useChannelColumns = (checkBoxOnChange: any) => {
+
+const useChannelColumns = () => {
+  const {
+    mutate: updateListStatus,
+  } = useUpdateListStatus({
+    // isTest: true
+  })
+
+  const onChange = (id: any, checkedValues: string[]) => {
+    console.log('checked = ', checkedValues);
+    updateListStatus({ id: id, status: checkedValues })
+  };
+
   const columns: TableProps<RegistrationOptions>['columns'] = [
     {
       title: <Checkbox />,
@@ -100,7 +113,7 @@ const useChannelColumns = (checkBoxOnChange: any) => {
         return <Checkbox.Group
           options={liveOptions}
           defaultValue={defaultValue}
-        // onChange={checkBoxOnChange}
+          onChange={(value)=>{onChange(channel.id,value)}}
         />;
       },
       width: 100,

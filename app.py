@@ -15,9 +15,11 @@ class ReservationOptions:
 
 # 定义数据生成函数
 def generate_reservations(total_count=5):
-    reservations = []
+    data = { }
+    
     for _ in range(total_count):
         reservation = ReservationOptions(
+            id=1,
             name='陳家洛',
             url='https://chatgpt.com/c/86659176-8e10-4c42-aa11-7ce5d7a01fe5',
             preview_image='logo', 
@@ -26,8 +28,8 @@ def generate_reservations(total_count=5):
             viewers=1000,
             viewed=False
         )
-        reservations.append(reservation.__dict__) 
-    return reservations
+        data.ChannelList.append(reservation.__dict__) 
+    return data
 
 data_store = {
     "list": [],

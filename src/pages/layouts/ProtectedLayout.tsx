@@ -7,7 +7,6 @@ import TestModal from '@/components/TestModal';
 import { useUserStore } from '@/store';
 import { Layout } from 'antd';
 import { useTradeSignal } from '@/hooks';
-import { useRates } from '@/api';
 import styles from './styles.module.scss';
 
 const ProtectedLayout: React.FunctionComponent = () => {
@@ -17,7 +16,6 @@ const ProtectedLayout: React.FunctionComponent = () => {
 
   // query
   const {  setLoginProps } = useUserStore();
-  useRates({ isTest: false });
 
   // === init ===
   useEffect(() => {

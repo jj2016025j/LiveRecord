@@ -8,8 +8,10 @@ import useChannelColumns from './useChannelColumns';
 interface IChannelHistoryProps extends HistoryPageInit { }
 
 const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) => {
-  const { columns } = useChannelColumns({});
+  const { columns } = useChannelColumns();
   const [showHistory, setShowHistory] = useState<ChannelOptions[]>()
+  const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
 
   // DOM
   const { ...hxState } = props || {};
@@ -29,10 +31,10 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
     query({
       dateFrom: dateFrom.format(),
       dateTo: dateTo.format(),
-      totalCount: 50,
-      currentPage: 1,
+      pageSize: pageSize,
+      currentPage: page,
     });
-  }, [dateFrom, dateTo, searchInput]);
+  }, [dateFrom, dateTo, searchInput, pageSize, page]);
 
   useEffect(() => {
     // const showHistory = searchInput ?
@@ -40,7 +42,7 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
     //     return record.name.includes(searchInput)
     //       || record.url.includes(searchInput)
     //   }) : data?.reservations || [];
-    const showHistory = data || [];
+    const showHistory = data?.ChannelList || [];
     setShowHistory(showHistory)
     console.log('data', data)
     console.log('showHistory', showHistory)
@@ -49,10 +51,11 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
   return (
     <>
       <TableAlpha
+        {...{ totalCount: data?.totalCount, setPageSize, setPage }}
+        loading={isPending}
+        rowKey='id'
         columns={columns}
         dataSource={showHistory}
-        loading={isPending}
-        rowKey={'id'}
       />
     </>
   );

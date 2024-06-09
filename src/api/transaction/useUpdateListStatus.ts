@@ -5,17 +5,18 @@ import { useState } from 'react';
 type ManualBlockchainConfirmRes = {
 };
 type ManualBlockchainConfirmProps = {
-  hash: string
+  id: string | undefined
+  status: Array<any>
 };
 type OtherProps = {};
 
-const useManualBlockchainConfirm = (useProps: UseTestMutationProps<ManualBlockchainConfirmRes, ManualBlockchainConfirmProps, OtherProps>) => {
+const useUpdateListStatus = (useProps: UseTestMutationProps<ManualBlockchainConfirmRes, ManualBlockchainConfirmProps, OtherProps>) => {
   const { ...other } = useProps;
   const [successOrFail, setSuccessOrFail] = useState(false)
   const testMutation = useTestMutation<ManualBlockchainConfirmRes, ManualBlockchainConfirmProps>({
     ...other,
     mutationFn: (props) => {
-      const request = axiosRoot.post('/transaction/manualBlockchainConfirm', props).then(({ data }) => data);
+      const request = axiosRoot.put('/updateliststatus', props).then(({ data }) => data);
       return request;
     },
     onSuccess: () => {
@@ -29,5 +30,5 @@ const useManualBlockchainConfirm = (useProps: UseTestMutationProps<ManualBlockch
   return { ...testMutation, successOrFail };
 };
 
-export { useManualBlockchainConfirm };
+export { useUpdateListStatus };
 export type { ManualBlockchainConfirmRes, ManualBlockchainConfirmProps };

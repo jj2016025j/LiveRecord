@@ -11,7 +11,8 @@ type QueryChannelRes = {
   viewers: number
   autoRecord: boolean,
   isfavorite: boolean,
-  Viewed: boolean
+  Viewed: boolean,
+  LiveUrl: string
 };
 
 type QueryChannelProps = {

@@ -10,14 +10,27 @@ import styles from "./styles.module.scss";
 interface ITableAlphaProps {
   setPageSize?: React.Dispatch<React.SetStateAction<number>>;
   setPage?: React.Dispatch<React.SetStateAction<number>>;
+  totalCount?: number;
 }
 
 const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
-  (
-    // prettier-ignore
-    { columns: origin, dataSource: originDatas, setPageSize: syncPageSize, setPage: syncPage, ...props },
-    ref
-  ) => {
+  (props, ref) => {
+
+    const [pageSize, setPageSize] = useState(10);
+    const [page, setPage] = useState(1);
+    // useEffect(() => {
+    //   console.log('TableAlpha props', props.dataSource)
+    // }, [props])
+
+    const {
+      totalCount,
+      columns: origin,
+      dataSource: originDatas,
+      setPageSize: syncPageSize,
+      setPage: syncPage,
+      ...tableProps
+    } = props || {};
+
     const columns = origin
       ? origin.map((originColumn) => {
         const column: typeof originColumn = {
@@ -42,10 +55,6 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
       })
       : undefined;
 
-    const [pageSize, setPageSize] = useState(10);
-    const [page, setPage] = useState(1);
-    const datas = originDatas?.slice((page - 1) * pageSize, page * pageSize);
-
     useEffect(() => {
       if (!syncPage) return;
       syncPage(page);
@@ -59,9 +68,9 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
     return (
       <div ref={ref}>
         <Table
-          dataSource={datas}
+          dataSource={originDatas}
           footer={() => {
-            if (!originDatas || originDatas.length < 10) return;
+            if (!originDatas) return;
             return (
               <Space
                 style={{
@@ -76,8 +85,9 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
                     if (newSize) setPageSize(newSize);
                     if (newPage) setPage(newPage);
                   }}
-                  total={originDatas?.length}
+                  total={totalCount ?? originDatas?.length}
                   showSizeChanger
+                  current={page}
                 />
               </Space>
             );
@@ -86,9 +96,9 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
           rowClassName={() => styles.test}
           scroll={{
             x: 'max-content',
-            y: 'calc(75vh - 100px)',
+            y: 'calc(90vh - 250px)',
           }}
-          {...{ ...props, columns }}
+          {...{ ...tableProps, columns }}
         />
       </div>
     );

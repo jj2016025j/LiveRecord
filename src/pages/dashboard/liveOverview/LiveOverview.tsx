@@ -1,11 +1,13 @@
 import { Card, Typography } from 'antd';
 import ReactPlayer from 'react-player';
 
-interface IOverviewCardProps { }
-
+interface IOverviewCardProps {
+  liveUrl: string
+}
 
 const { Title } = Typography;
-const OverviewCard: React.FunctionComponent<IOverviewCardProps> = () => {
+const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
+  const {liveUrl} = porps
   return (
     <Card
       styles={{
@@ -24,6 +26,7 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = () => {
       </video> */}
       <br />
       <ReactPlayer url={'https://www.youtube.com/watch?v=gp2K_xfEDoU'} playing controls width="100%" />
+      <ReactPlayer url={liveUrl} playing controls width="100%" />
     </Card>
   );
 };

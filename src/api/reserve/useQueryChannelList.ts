@@ -22,12 +22,17 @@ type ChannelOptions = {
   Viewed: boolean
 };
 
-type ChannelListRes = Array<ChannelOptions>;
+type ChannelListRes = {
+  totalCount?: number;
+  currentPage?: number;
+  pageSize?: number;
+  ChannelList: Array<ChannelOptions>
+};
 
 type ChannelListProps = {
   dateFrom?: string;
   dateTo?: string;
-  totalCount?: number;
+  pageSize?: number;
   currentPage?: number;
 };
 
@@ -51,24 +56,24 @@ const useQueryChannelList = (useProps: UseTestMutationProps<ChannelListRes, Chan
         });
       return request;
     },
-    onTest: (props) => {
-      const reservations = new Array(props.totalCount ?? 5).fill(null).map(() => {
-        const makeData: ChannelOptions = {
-          name: '陳家洛',
-          url: 'https://chatgpt.com/c/86659176-8e10-4c42-aa11-7ce5d7a01fe5https://chatgpt.com/c/86659176-8e10-4c42-aa11-7ce5d7a01fe5',
-          previewImage: logo,
-          status: TradeTypeNum.CustomerBuy,
-          size: [720, 1080],
-          viewers: 1000,
-          autoRecord: true,
-          isfavorite: true,
-          Viewed: false,
-        };
-        // console.log('makeData', makeData)
-        return makeData;
-      });
-      return Promise.resolve(reservations);
-    },
+    // onTest: (props) => {
+    //   const reservations = new Array(props.pageSize ?? 5).fill(null).map(() => {
+    //     const makeData: ChannelOptions = {
+    //       name: '陳家洛',
+    //       url: 'https://chatgpt.com/c/86659176-8e10-4c42-aa11-7ce5d7a01fe5https://chatgpt.com/c/86659176-8e10-4c42-aa11-7ce5d7a01fe5',
+    //       previewImage: logo,
+    //       status: TradeTypeNum.CustomerBuy,
+    //       size: [720, 1080],
+    //       viewers: 1000,
+    //       autoRecord: true,
+    //       isfavorite: true,
+    //       Viewed: false,
+    //     };
+    //     // console.log('makeData', makeData)
+    //     return makeData;
+    //   });
+    //   return Promise.resolve(reservations);
+    // },
   });
 
   return { ...testMutation, reservations, setChannelList };

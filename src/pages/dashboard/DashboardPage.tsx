@@ -2,8 +2,11 @@ import { Col, Row, } from 'antd';
 import LiveOverview from './liveOverview/LiveOverview';
 import QueryMember from './queryMember/QueryMember';
 import LiveList from '../history/LiveList';
+import { useState } from 'react';
 
 const DashboardPage = () => {
+  const [liveUrl, setLiveUrl] = useState<string>('')
+
   return (
     <>
       <Row
@@ -12,9 +15,9 @@ const DashboardPage = () => {
       >
         <Col span={12}>
           {/* 查詢區 */}
-          <QueryMember />
+          <QueryMember setLiveUrl={setLiveUrl} />
           {/* 影片播放區 */}
-          <LiveOverview />
+          <LiveOverview liveUrl={liveUrl} />
         </Col>
         <Col span={12}>
           {/* 清單 */}
