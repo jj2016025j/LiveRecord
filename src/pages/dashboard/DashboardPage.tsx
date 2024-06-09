@@ -1,7 +1,7 @@
 import { Col, Row, } from 'antd';
-import OverviewCard from './overview/OverviewCard';
+import LiveOverview from './liveOverview/LiveOverview';
 import QueryMember from './queryMember/QueryMember';
-import HistoryPage from '../history/HistoryPage';
+import LiveList from '../history/LiveList';
 
 const DashboardPage = () => {
   return (
@@ -14,11 +14,11 @@ const DashboardPage = () => {
           {/* 查詢區 */}
           <QueryMember />
           {/* 影片播放區 */}
-          <OverviewCard />
+          <LiveOverview />
         </Col>
         <Col span={12}>
           {/* 清單 */}
-          <HistoryPage />
+          <LiveList />
         </Col>
       </Row>
     </>
