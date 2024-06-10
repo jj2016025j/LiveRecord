@@ -28,73 +28,107 @@ def record_stream(stream_url, filename_template):
     ]
     execute_ffmpeg_command(command)
 
-def check_and_record_stream(page_url, lock):
+def check_and_record_stream(page_url, lock, status_changes):
     """
     檢查直播流狀態並進行錄製。
     """
     try:
+        if not page_url:
+            print("url為空")
+            return
         stream_url, status = get_live_stream_url(page_url)
-        if status == "Online":
-            print(f"{page_url} 現在在線上。")
-            filename_template = generate_filename(page_url)
-            if not filename_template:
-                print(f"無法生成檔案名稱: {page_url}")
-                return
-            # print(f"為 {page_url} 開始錄製，儲存檔案為 {filename_template}")
-            process = multiprocessing.Process(target=record_stream, args=(stream_url, filename_template))
-            process.start()
-            with lock:
-                data_store["online_streams"][page_url] = process
+        with lock:
+            if status == "Online":
                 if page_url in data_store["offline_streams"]:
                     data_store["offline_streams"].remove(page_url)
-        elif status == "Offline":
-            # print(f"{page_url} 離線中。添加到離線列表。")
-            with lock:
+                    status_changes["online"].append(page_url)
+                if page_url not in data_store["online_streams"]:
+                    filename_template = generate_filename(page_url)
+                    process = multiprocessing.Process(target=record_stream, args=(stream_url, filename_template))
+                    process.start()
+                    data_store["online_streams"][page_url] = process
+                status_changes["continuing_online"].append(page_url)
+            elif status == "Offline":
+                if page_url in data_store["online_streams"]:
+                    process = data_store["online_streams"].pop(page_url)
+                    process.terminate()
+                    process.join()
+                    status_changes["offline"].append(page_url)
                 if page_url not in data_store["offline_streams"]:
                     data_store["offline_streams"].append(page_url)
-        else:
-            print(f"無法找到 {page_url}。")
+            else:
+                print(f"無法找到 {page_url}。")
     except Exception as e:
         print(f"檢查 {page_url} 時出錯: {e}")
+        with lock:
+            data_store["offline_streams"].append(page_url)
 
 def monitor_streams(lock):
     """
     監控直播流狀態。
     """
     while True:
-        time.sleep(30)
-        print("正在檢查離線的直播...")
+        time.sleep(60)
+        status_changes = {"online": [], "continuing_online": [], "offline": []}
         processes = []
+
+        print("正在檢查直播...")
         for page_url in data_store["offline_streams"].copy():
-            p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock))
+            p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
             p.start()
             processes.append(p)
 
         for p in processes:
             p.join()  # 等待所有子進程完成
-            
-        print("正在檢查線上的直播...")
+
+        processes.clear()
+
         with lock:
-            for page_url, process in data_store["online_streams"].copy().items():
-                if not process.is_alive():
-                    print(f"{page_url} 該直播已停止。")
-                    data_store["offline_streams"].append(page_url)
-                    del data_store["online_streams"][page_url]
-                    
+            for page_url in list(data_store["online_streams"]):
+                p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
+                p.start()
+                processes.append(p)
+
+        for p in processes:
+            p.join()  # 等待所有子進程完成
+
+        if status_changes["online"] or status_changes["continuing_online"] or status_changes["offline"]:
+            print("檢查結果:")
+            if status_changes["online"]:
+                print(f"上線: {status_changes['online']}")
+            if status_changes["continuing_online"]:
+                print(f"持續在線: {status_changes['continuing_online']}")
+            if status_changes["offline"]:
+                print(f"離線: {status_changes['offline']}")
+        else:
+            print("無變動 檢查完畢")
+
 def initialize_streams(lock):
     """
     初始化直播流列表並開始錄製在線直播。
     """
     json_file_path = 'live_list.json'
     json_data = read_json_file(json_file_path)
-    data_store["live_list"] = json_data
+    data_store["live_list"] = json_data['live_list']
     streams = extract_live_streams(json_data)
-    
+
     processes = []
+    status_changes = {"online": [], "continuing_online": [], "offline": []}
+
     for page_url in streams:
-        p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock))
+        p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
         p.start()
         processes.append(p)
 
     for p in processes:
         p.join()  # 等待所有子進程完成
+
+    print("初始化結果:")
+    if status_changes["online"]:
+        print(f"上線: {status_changes['online']}")
+    if status_changes["continuing_online"]:
+        print(f"持續在線: {status_changes['continuing_online']}")
+    if status_changes["offline"]:
+        print(f"離線: {status_changes['offline']}")
+    if not (status_changes["online"] or status_changes["continuing_online"] or status_changes["offline"]):
+        print("無變動 初始化完畢")

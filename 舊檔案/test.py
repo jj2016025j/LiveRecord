@@ -9,7 +9,7 @@ def read_json_file(file_path):
 def extract_live_streams(json_data):
     live_streams = []
     for item in json_data['live_list']:
-        live_streams.append(item['page_url'])
+        live_streams.append(item['url'])
     return live_streams
 
 json_file_path = 'live_list.json'

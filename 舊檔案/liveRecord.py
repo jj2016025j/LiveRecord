@@ -4,8 +4,9 @@ import subprocess
 import re
 import multiprocessing
 from datetime import datetime
-from 舊檔案.get_live_stream_url import get_live_stream_url
 import json
+
+from data_store import get_live_stream_url
 
 def generate_filename(url):
     # fixed_path = r"C:\Users\User\Desktop\新增資料夾\錄影"
@@ -92,7 +93,7 @@ def read_json_file(file_path):
 def extract_live_streams(json_data):
     live_streams = []
     for item in json_data['live_list']:
-        live_streams.append(item['page_url'])
+        live_streams.append(item['url'])
     return live_streams
 
 def monitor_streams(online_streams, offline_streams, duration):

@@ -7,6 +7,9 @@ def get_live_stream_url(page_url):
     }
     response = requests.get(page_url, headers=headers)
     
+    if response.status_code == 404:
+        return None, "Page not found"
+    
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
         for script in soup.find_all('script'):
@@ -14,13 +17,13 @@ def get_live_stream_url(page_url):
                 start = script.text.find('https://')
                 end = script.text.find('.m3u8') + 5
                 stream_url = script.text[start:end]
-                # 處理轉義字符
                 stream_url = stream_url.encode('utf-8').decode('unicode-escape')
-                return stream_url
-    return None
+                return stream_url, "Online"
+    
+    return None, "Offline"
 
 def main():
-    page_url = 'https://chaturbate.com/sloppy_wine_420/'  # 替換為實際的直播頁面 URL
+    page_url = 'https://chaturbate.com/bigdickbandit247/'  # 替換為實際的直播頁面 URL
     stream_url = get_live_stream_url(page_url)
     if stream_url:
         print(f'Found live stream URL: {stream_url}')

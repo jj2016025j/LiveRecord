@@ -125,16 +125,16 @@ def setup_routes(app):
             if item["id"] == recording_id:
                 if option_type == "start":
                     # 确认该选项是否已在录制中
-                    if item["page_url"] in data_store["online_streams"]:
+                    if item["url"] in data_store["online_streams"]:
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Already recording"}), 400
                     
                     try:
-                        stream_url, status = get_live_stream_url(item["page_url"])
+                        stream_url, status = get_live_stream_url(item["url"])
                         if status == "Online":
-                            filename_template = generate_filename(item["page_url"])
+                            filename_template = generate_filename(item["url"])
                             process = multiprocessing.Process(target=record_stream, args=(stream_url, filename_template))
                             process.start()
-                            data_store["online_streams"][item["page_url"]] = process
+                            data_store["online_streams"][item["url"]] = process
                             return jsonify({"id": recording_id, "optionType": option_type, "status": "Recording started"}), 200
                         else:
                             return jsonify({"id": recording_id, "optionType": option_type, "status": "Stream offline"}), 400
@@ -142,11 +142,11 @@ def setup_routes(app):
                         return jsonify({"id": recording_id, "optionType": option_type, "status": f"Error starting recording: {str(e)}"}), 500
 
                 elif option_type == "stop":
-                    if item["page_url"] in data_store["online_streams"]:
-                        process = data_store["online_streams"][item["page_url"]]
+                    if item["url"] in data_store["online_streams"]:
+                        process = data_store["online_streams"][item["url"]]
                         process.terminate()
                         process.join()
-                        del data_store["online_streams"][item["page_url"]]
+                        del data_store["online_streams"][item["url"]]
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Recording stopped"}), 200
                     else:
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Recording not found"}), 404

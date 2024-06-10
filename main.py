@@ -10,16 +10,20 @@ app = Flask(__name__)
 setup_routes(app)
 
 if __name__ == '__main__':
+    # app.run(host='0.0.0.0', port=5555, debug=True)
+
     # 初始化進程同步工具
     lock = multiprocessing.Lock()
 
     # 整理JSON文件
     print("Organizing JSON file...")
-    organize_json_file()
+    organize_process = multiprocessing.Process(target=organize_json_file, args=(lock,))
+    organize_process.start()
 
     # 初始化直播流狀態
     print("Initializing streams...")
-    initialize_streams(lock)
+    initialize_process = multiprocessing.Process(target=initialize_streams, args=(lock,))
+    initialize_process.start()
 
     # 創建並啟動監控進程
     print("Starting monitor process...")
