@@ -99,14 +99,12 @@ def check_and_complete_data(item):
     return item
 
 # 整理檔案
-def organize_json_file(file_path=JSON_FILE_PATH):
+def organize_json_file(data_store, file_path=JSON_FILE_PATH):
     data = read_json_file(file_path)
     if "live_list" in data:
         for i in range(len(data["live_list"])):
             data["live_list"][i] = check_and_complete_data(data["live_list"][i])
-    else:
-        data["live_list"] = []
-
+        data_store["live_list"] = data["live_list"]
     write_json_file(data, file_path)
 
 def extract_live_streams(json_data):
@@ -120,42 +118,60 @@ def extract_name_from_url(url):
     return None
 
 # 取得直播流
+# def get_live_stream_url(page_url):
+#     headers = {
+#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+#     }
+#     session = requests.Session()
+#     retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+#     session.mount('https://', HTTPAdapter(max_retries=retries))
+
+#     try:
+#         response = session.get(page_url, headers=headers, timeout=10)
+
+#         if response.status_code == 404:
+#             return None, "Page not found"
+
+#         if response.status_code == 200:
+#             soup = BeautifulSoup(response.content, 'html.parser')
+#             for script in soup.find_all('script'):
+#                 if '.m3u8' in script.text:
+#                     start = script.text.find('https://')
+#                     end = script.text.find('.m3u8') + 5
+#                     stream_url = script.text[start:end]
+#                     stream_url = stream_url.encode('utf-8').decode('unicode-escape')
+#                     return stream_url, "Online"
+
+#         return None, "Offline"
+
+#     except requests.exceptions.SSLError as e:
+#         print(f"SSL error occurred while checking {page_url}: {e}")
+#         return None, "SSL Error"
+
+#     except requests.exceptions.ConnectionError as e:
+#         print(f"Connection error occurred while checking {page_url}: {e}")
+#         return None, "Connection Error"
+
+#     except requests.exceptions.RequestException as e:
+#         print(f"Error occurred while checking {page_url}: {e}")
+#         return None, "Request Error"
 def get_live_stream_url(page_url):
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
     }
-
-    # 配置重試策略
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-    session.mount('https://', HTTPAdapter(max_retries=retries))
-
-    try:
-        response = session.get(page_url, headers=headers, timeout=10)
-
-        if response.status_code == 404:
-            return None, "Page not found"
-
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, 'html.parser')
-            for script in soup.find_all('script'):
-                if '.m3u8' in script.text:
-                    start = script.text.find('https://')
-                    end = script.text.find('.m3u8') + 5
-                    stream_url = script.text[start:end]
-                    stream_url = stream_url.encode('utf-8').decode('unicode-escape')
-                    return stream_url, "Online"
-
-        return None, "Offline"
-
-    except requests.exceptions.SSLError as e:
-        print(f"SSL error occurred while checking {page_url}: {e}")
-        return None, "SSL Error"
-
-    except requests.exceptions.ConnectionError as e:
-        print(f"Connection error occurred while checking {page_url}: {e}")
-        return None, "Connection Error"
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error occurred while checking {page_url}: {e}")
-        return None, "Request Error"
+    response = requests.get(page_url, headers=headers)
+    
+    if response.status_code == 404:
+        return None, "Page not found"
+    
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        for script in soup.find_all('script'):
+            if '.m3u8' in script.text:
+                start = script.text.find('https://')
+                end = script.text.find('.m3u8') + 5
+                stream_url = script.text[start:end]
+                stream_url = stream_url.encode('utf-8').decode('unicode-escape')
+                return stream_url, "Online"
+    
+    return None, "Offline"

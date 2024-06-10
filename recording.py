@@ -1,7 +1,7 @@
 import time
 import subprocess
 import multiprocessing
-from data_store import data_store, extract_live_streams, get_live_stream_url, generate_filename, read_json_file
+from data_store import extract_live_streams, get_live_stream_url, generate_filename, read_json_file
 
 def execute_ffmpeg_command(command):
     """
@@ -28,7 +28,7 @@ def record_stream(stream_url, filename_template):
     ]
     execute_ffmpeg_command(command)
 
-def check_and_record_stream(page_url, lock, status_changes):
+def check_and_record_stream(page_url, data_store, lock, status_changes):
     """
     檢查直播流狀態並進行錄製。
     """
@@ -63,7 +63,7 @@ def check_and_record_stream(page_url, lock, status_changes):
         with lock:
             data_store["offline_streams"].append(page_url)
 
-def monitor_streams(lock):
+def monitor_streams(data_store, lock):
     """
     監控直播流狀態。
     """
@@ -74,7 +74,7 @@ def monitor_streams(lock):
 
         print("正在檢查直播...")
         for page_url in data_store["offline_streams"].copy():
-            p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
+            p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, data_store, lock, status_changes))
             p.start()
             processes.append(p)
 
@@ -85,7 +85,7 @@ def monitor_streams(lock):
 
         with lock:
             for page_url in list(data_store["online_streams"]):
-                p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
+                p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, data_store, lock, status_changes))
                 p.start()
                 processes.append(p)
 
@@ -103,7 +103,7 @@ def monitor_streams(lock):
         else:
             print("無變動 檢查完畢")
 
-def initialize_streams(lock):
+def initialize_streams(data_store, lock):
     """
     初始化直播流列表並開始錄製在線直播。
     """
@@ -111,12 +111,13 @@ def initialize_streams(lock):
     json_data = read_json_file(json_file_path)
     data_store["live_list"] = json_data['live_list']
     streams = extract_live_streams(json_data)
-
+    # print('初始化完成', data_store["live_list"])
+    
     processes = []
     status_changes = {"online": [], "continuing_online": [], "offline": []}
 
     for page_url in streams:
-        p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, lock, status_changes))
+        p = multiprocessing.Process(target=check_and_record_stream, args=(page_url, data_store, lock, status_changes))
         p.start()
         processes.append(p)
 

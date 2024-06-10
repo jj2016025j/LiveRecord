@@ -23,7 +23,7 @@ def get_live_stream_url(page_url):
     return None, "Offline"
 
 def main():
-    page_url = 'https://chaturbate.com/bigdickbandit247/'  # 替換為實際的直播頁面 URL
+    page_url = 'https://chaturbate.com/vixenp/'  # 替換為實際的直播頁面 URL
     stream_url = get_live_stream_url(page_url)
     if stream_url:
         print(f'Found live stream URL: {stream_url}')
