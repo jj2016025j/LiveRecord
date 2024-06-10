@@ -5,28 +5,27 @@ import {
   useTestMutation,
   UseTestMutationProps,
 } from '../../utils';
-import logo from '@/assets/eth.png'
 import { axiosRoot } from '@/utils/axiosRoot';
 
 // types
 type ChannelOptions = {
   id?: string;
-  previewImage: string;
+  // previewImage: string;
   name: string;
   url: string;
   status: TradeTypeNum;
-  size: number[];
-  viewers: number
+  // size: number[];
+  // viewers: number
   autoRecord: boolean,
-  isfavorite: boolean,
-  Viewed: boolean
+  isFavorite: boolean,
+  viewed: boolean
 };
 
 type ChannelListRes = {
   totalCount?: number;
   currentPage?: number;
   pageSize?: number;
-  ChannelList: Array<ChannelOptions>
+  channelList: Array<ChannelOptions>
 };
 
 type ChannelListProps = {
@@ -50,7 +49,7 @@ const useQueryChannelList = (useProps: UseTestMutationProps<ChannelListRes, Chan
   const testMutation = useTestMutation<ChannelListRes, ChannelListProps>({
     ...config,
     mutationFn: (props) => {
-      const request = axiosRoot.get('getlist')
+      const request = axiosRoot.get('getlist', { params: props})
         .then(({ data }) => {
           return data
         });
@@ -66,8 +65,8 @@ const useQueryChannelList = (useProps: UseTestMutationProps<ChannelListRes, Chan
     //       size: [720, 1080],
     //       viewers: 1000,
     //       autoRecord: true,
-    //       isfavorite: true,
-    //       Viewed: false,
+    //       isFavorite: true,
+    //       viewed: false,
     //     };
     //     // console.log('makeData', makeData)
     //     return makeData;

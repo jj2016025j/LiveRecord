@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 
 def get_live_stream_url(page_url):
     headers = {

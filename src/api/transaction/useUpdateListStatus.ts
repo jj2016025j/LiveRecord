@@ -5,8 +5,10 @@ import { useState } from 'react';
 type ManualBlockchainConfirmRes = {
 };
 type ManualBlockchainConfirmProps = {
-  id: string | undefined
-  status: Array<any>
+  urlOrNameOrId: string | undefined
+  isFavorite: boolean
+  autoRecord: boolean
+  viewed: boolean
 };
 type OtherProps = {};
 

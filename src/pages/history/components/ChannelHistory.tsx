@@ -29,8 +29,8 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
   useEffect(() => {
     if (!dateFrom || !dayjs(dateFrom).isValid() || !dateTo || !dayjs(dateTo).isValid()) return;
     query({
-      dateFrom: dateFrom.format(),
-      dateTo: dateTo.format(),
+      // dateFrom: dateFrom.format(),
+      // dateTo: dateTo.format(),
       pageSize: pageSize,
       currentPage: page,
     });
@@ -42,7 +42,7 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
     //     return record.name.includes(searchInput)
     //       || record.url.includes(searchInput)
     //   }) : data?.reservations || [];
-    const showHistory = data?.ChannelList || [];
+    const showHistory = data?.channelList || [];
     setShowHistory(showHistory)
     console.log('data', data)
     console.log('showHistory', showHistory)

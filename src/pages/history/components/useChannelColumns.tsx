@@ -4,7 +4,7 @@ import { TableProps, Typography, Image, Checkbox, Button } from 'antd';
 
 const liveOptions = [
   { label: '自動錄影', value: 'autoRecord' },
-  { label: '加到最愛', value: 'favorite' },
+  { label: '加到最愛', value: 'isFavorite' },
 ];
 
 const { Text } = Typography;
@@ -20,7 +20,13 @@ const useChannelColumns = () => {
 
   const onChange = (id: any, checkedValues: string[]) => {
     console.log('checked = ', checkedValues);
-    updateListStatus({ id: id, status: checkedValues })
+    const statusUpdate = {
+      urlOrNameOrId: id,  // 替换为你的实际 URL 或 ID
+      isFavorite: checkedValues.includes('isFavorite'),
+      autoRecord: checkedValues.includes('autoRecord'),
+      viewed: checkedValues.includes('viewed')
+    };
+    updateListStatus(statusUpdate)
   };
 
   const columns: TableProps<RegistrationOptions>['columns'] = [
@@ -33,18 +39,18 @@ const useChannelColumns = () => {
       },
       width: 50,
     },
-    {
-      title: '縮圖預覽',
-      dataIndex: 'previewImage',
-      align: 'center',
-      key: 'previewImage',
-      render: (previewImage) => (
-        <>
-          <Image src={previewImage} alt="Logo" />
-        </>
-      ),
-      width: 80,
-    },
+    // {
+    //   title: '縮圖預覽',
+    //   dataIndex: 'previewImage',
+    //   align: 'center',
+    //   key: 'previewImage',
+    //   render: (previewImage) => (
+    //     <>
+    //       <Image src={previewImage} alt="Logo" />
+    //     </>
+    //   ),
+    //   width: 80,
+    // },
     {
       title: '名稱',
       dataIndex: 'name',
@@ -82,26 +88,26 @@ const useChannelColumns = () => {
       },
       width: 80,
     },
-    {
-      title: '影片大小',
-      dataIndex: 'size',
-      key: 'size',
-      align: 'center',
-      render: (status) => {
-        return <Text>{status[0] + 'x' + status[1] || '無'}</Text>;
-      },
-      width: 80,
-    },
-    {
-      title: '觀看人次',
-      dataIndex: 'viewers',
-      key: 'viewers',
-      align: 'center',
-      render: (viewers) => {
-        return <Text>{viewers || '無'}</Text>;
-      },
-      width: 100,
-    },
+    // {
+    //   title: '影片大小',
+    //   dataIndex: 'size',
+    //   key: 'size',
+    //   align: 'center',
+    //   render: (status) => {
+    //     return <Text>{status[0] + 'x' + status[1] || '無'}</Text>;
+    //   },
+    //   width: 80,
+    // },
+    // {
+    //   title: '觀看人次',
+    //   dataIndex: 'viewers',
+    //   key: 'viewers',
+    //   align: 'center',
+    //   render: (viewers) => {
+    //     return <Text>{viewers || '無'}</Text>;
+    //   },
+    //   width: 100,
+    // },
     {
       title: '其他選項',
       key: 'options',
@@ -109,7 +115,7 @@ const useChannelColumns = () => {
       render: (channel) => {
         const defaultValue = [];
         if (channel.autoRecord) defaultValue.push('autoRecord');
-        if (channel.isFavorite) defaultValue.push('favorite');
+        if (channel.isFavorite) defaultValue.push('isFavorite');
         return <Checkbox.Group
           options={liveOptions}
           defaultValue={defaultValue}
@@ -120,11 +126,11 @@ const useChannelColumns = () => {
     },
     {
       title: '已觀看',
-      dataIndex: 'Viewed',
-      key: 'Viewed',
+      dataIndex: 'viewed',
+      key: 'viewed',
       align: 'center',
-      render: (Viewed) => {
-        return <Text>{Viewed == true ? '已觀看' : '未觀看'}</Text>;
+      render: (viewed) => {
+        return <Text>{viewed == true ? '已觀看' : '未觀看'}</Text>;
       },
       width: 100,
     },

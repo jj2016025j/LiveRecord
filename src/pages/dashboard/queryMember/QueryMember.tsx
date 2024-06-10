@@ -7,7 +7,7 @@ interface IQueryMemberProps {
 }
 const options = [
   { label: '自動錄影', value: 'autoRecord' },
-  { label: '加到最愛', value: 'favorite' },
+  { label: '加到最愛', value: 'isFavorite' },
 ];
 
 const { Title, Text } = Typography;
@@ -29,20 +29,9 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
   } = useUpdateListStatus({
     // isTest: true
   })
-
-  // const warning = () => {
-  //   Modal.warning({
-  //     title: '重複新增',
-  //     content: '該用戶已新增過',
-  //   });
-  // };
-
-  // const error = () => {
-  //   Modal.error({
-  //     title: '查詢失敗',
-  //     content: '找不到用戶',
-  //   });
-  // };
+  useEffect(() => {
+    setLiveUrl(ChannelInfo?.stream_url)
+  }, [ChannelInfo])
 
   const maxLength = 30
   const url = ChannelInfo?.url || ''
@@ -50,28 +39,30 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
   const truncatedText = needsTruncation
     ? `${url.slice(0, 4)}...${url.slice(-4)}`
     : url;
-  const itemsData = ChannelInfo
 
   const onChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
     console.log('checked = ', checkedValues);
-    updateListStatus({ id: itemsData?.id, status: checkedValues })
+
+    const statusUpdate = {
+      urlOrNameOrId: ChannelInfo?.id,  // 替换为你的实际 URL 或 ID
+      isFavorite: checkedValues.includes('isFavorite'),
+      autoRecord: checkedValues.includes('autoRecord'),
+      viewed: checkedValues.includes('viewed')
+    };
+    updateListStatus(statusUpdate)
   };
 
-  useEffect(() => {
-    form.setFieldsValue({ customerId: 'https://www.youtube.com/watch?v=21X5lGlDOfg' })
-  })
-
-  const items: DescriptionsProps['items'] = (ChannelInfo && itemsData)
+  const items: DescriptionsProps['items'] = (ChannelInfo)
     ? [
       {
         key: 'id',
         label: '編號ID',
-        children: itemsData.id,
+        children: ChannelInfo.id,
       },
       {
         key: 'name',
         label: '名稱',
-        children: itemsData.name,
+        children: ChannelInfo.name,
       },
       {
         key: 'url',
@@ -83,22 +74,22 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         label: '狀態',
         children: <span>已離線</span>,
       },
-      {
-        key: 'size',
-        label: '影片大小',
-        children: itemsData.size[0] + '\nx' + itemsData.size[1],
-      },
-      {
-        key: 'viewers',
-        label: '觀看人次',
-        children: itemsData.viewers,
-      },
-      {
-        key: 'viewers',
-        label: '觀看人次',
-        children:
-          <Text>{itemsData.viewers || '無'}</Text>
-      },
+      // {
+      //   key: 'size',
+      //   label: '影片大小',
+      //   children: ChannelInfo.size[0] + '\nx' + ChannelInfo.size[1],
+      // },
+      // {
+      //   key: 'viewers',
+      //   label: '觀看人次',
+      //   children: ChannelInfo.viewers,
+      // },
+      // {
+      //   key: 'viewers',
+      //   label: '觀看人次',
+      //   children:
+      //     <Text>{ChannelInfo.viewers || '無'}</Text>
+      // },
       {
         key: 'options',
         label: '其他選項',
@@ -106,31 +97,31 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
           <Checkbox.Group options={options} defaultValue={['自動錄影']} onChange={onChange} />
       },
       {
-        key: 'Viewed',
+        key: 'viewed',
         label: '已查看',
         children:
-          <Text>{itemsData.Viewed == true ? '已查看' : '未查看'}</Text>
+          <Text>{ChannelInfo.viewed == true ? '已查看' : '未查看'}</Text>
       },
-      {
-        key: 'operate',
-        label: '操作',
-        children:
-          <Button onClick={() => { setLiveUrl(itemsData.LiveUrl) }}>{'查看預覽畫面'}</Button>
-      },
-      {
-        key: 'preview',
-        label: '縮圖預覽',
-        children: (
-          <div>
-            {itemsData.previewImage ? (
-              <Image src={itemsData.previewImage} alt="Logo" style={{ height: '50px' }} />
-            ) : (
-              <Empty description='尚未上傳' />
-            )}
-            <br />
-          </div>
-        ),
-      },
+      // {
+      //   key: 'operate',
+      //   label: '操作',
+      //   children:
+      //     <Button onClick={() => { setLiveUrl(ChannelInfo.LiveUrl) }}>{'查看預覽畫面'}</Button>
+      // },
+      // {
+      //   key: 'preview',
+      //   label: '縮圖預覽',
+      //   children: (
+      //     <div>
+      //       {ChannelInfo.previewImage ? (
+      //         <Image src={ChannelInfo.previewImage} alt="Logo" style={{ height: '50px' }} />
+      //       ) : (
+      //         <Empty description='尚未上傳' />
+      //       )}
+      //       <br />
+      //     </div>
+      //   ),
+      // },
     ]
     : [];
 
@@ -153,8 +144,8 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         <Form
           layout='vertical'
           form={form}
-          onFinish={(form) => QueryChannel({ urlOrName: form.customerId })}
-          initialValues={{ customerId: 'https://www.youtube.com/watch?v=21X5lGlDOfg' }}
+          onFinish={(form) => QueryChannel({ urlOrNameOrId: form.customerId })}
+          initialValues={{ customerId: 'https://chaturbate.com/evapunkprincess/' }}
         >
           <Form.Item
             label='輸入網址/用戶名稱'
@@ -173,7 +164,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
           <Space>
             <Form.Item>
               <Button
-                loading={false}
+                loading={isQuerying}
                 type='primary'
                 htmlType='submit'
               >

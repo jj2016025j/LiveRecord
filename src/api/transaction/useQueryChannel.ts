@@ -3,20 +3,21 @@ import { axiosRoot } from "@/utils/axiosRoot";
 
 type QueryChannelRes = {
   id?: string;
-  previewImage: string;
+  // previewImage: string;
   name: string;
   url: string;
-  status: TradeTypeNum;
-  size: number[];
-  viewers: number
+  status: TradeTypeNum | string;
+  // size: number[];
+  // viewers: number
   autoRecord: boolean,
-  isfavorite: boolean,
-  Viewed: boolean,
-  LiveUrl: string
+  isFavorite: boolean,
+  viewed: boolean,
+  // LiveUrl: string,
+  stream_url: string,
 };
 
 type QueryChannelProps = {
-  urlOrName: string;
+  urlOrNameOrId: string;
 };
 type OtherProps = {
 };
@@ -28,9 +29,7 @@ const useQueryChannel = ({
     ...config,
     mutationFn: (props) => {
       const request = axiosRoot.post("queryandaddlist", {
-        params: {
-          urlOrName: props.urlOrName
-        }
+        urlOrNameOrId: props.urlOrNameOrId
       })
         .then(({ data }) => {
           return data

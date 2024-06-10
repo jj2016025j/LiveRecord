@@ -11,7 +11,7 @@ class ReservationOptions:
         self.status = status
         self.size = size
         self.viewers = viewers
-        self.Viewed = viewed
+        self.viewed = viewed
 
 # 定义数据生成函数
 def generate_reservations(total_count=5):
@@ -28,7 +28,7 @@ def generate_reservations(total_count=5):
             viewers=1000,
             viewed=False
         )
-        data.ChannelList.append(reservation.__dict__) 
+        data.channelList.append(reservation.__dict__) 
     return data
 
 data_store = {
@@ -44,7 +44,7 @@ def query_and_add_list():
         "urlOrName": url_or_name,
         "isFavorite": False,
         "autoRecord": False,
-        "watched": False
+        "viewed": False
     }
     data_store["list"].append(new_item)
     reservations = generate_reservations(1)
@@ -64,7 +64,7 @@ def update_list_status():
         if item["id"] == data["id"]:
             item["isFavorite"] = data["isFavorite"]
             item["autoRecord"] = data["autoRecord"]
-            item["watched"] = data["watched"]
+            item["viewed"] = data["viewed"]
             return jsonify(item), 200
     return jsonify({"message": "Item not found"}), 404
 

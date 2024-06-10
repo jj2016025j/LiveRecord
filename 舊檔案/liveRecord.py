@@ -1,32 +1,21 @@
+import time
 import cv2
 import subprocess
-import streamlink
 import re
 import multiprocessing
 from datetime import datetime
-from get_live_stream_url import get_live_stream_url
+from 舊檔案.get_live_stream_url import get_live_stream_url
 import json
 
 def generate_filename(url):
-    fixed_path = r"C:\Users\User\Desktop\新增資料夾\錄影"
+    # fixed_path = r"C:\Users\User\Desktop\新增資料夾\錄影"
+    fixed_path = r"D:\01照片分類\直播moniturbate"
     match = re.search(r'amlst:([^:]+?)-sd', url)
     file_name = '_'
     if match:
         file_name = match.group(1)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{fixed_path}\\{file_name}_{timestamp}.mp4"
-
-def get_stream_url(page_url):
-    session = streamlink.Streamlink()
-    session.set_option('http-headers', {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    })
-    streams = streamlink.streams(page_url)
-    # print('======================streams: ',streams)
-    if "best" in streams:
-        return streams["best"].url
-    else:
-        raise Exception("No stream available")
 
 def record_stream(stream_url, filename, duration):
     command = [
@@ -106,72 +95,67 @@ def extract_live_streams(json_data):
         live_streams.append(item['page_url'])
     return live_streams
 
+def monitor_streams(online_streams, offline_streams, duration):
+    while True:
+        time.sleep(30)
+        print("Checking offline streams...")
+        for page_url in offline_streams.copy():
+            try:
+                stream_url = get_live_stream_url(page_url)
+                print(f"{page_url} is now online.")
+                filename = generate_filename(page_url)
+                process = multiprocessing.Process(target=record_stream, args=(stream_url, filename, duration))
+                process.start()
+                online_streams[page_url] = process
+                offline_streams.remove(page_url)
+            except Exception as e:
+                print(f"{page_url} is still offline.")
+
+        print("Checking online streams...")
+        for page_url, process in online_streams.copy().items():
+            if not process.is_alive():
+                print(f"{page_url} has stopped recording.")
+                offline_streams.append(page_url)
+                del online_streams[page_url]
+                
 def main():
     json_file_path = 'live_list.json'
     json_data = read_json_file(json_file_path)
     streams = extract_live_streams(json_data)
 
     duration = "1:00:00"
-    processes = []
-
+    online_streams = {}
+    offline_streams = []
+    
     for page_url in streams:
         try:
-            print(f"Fetching stream URL for {page_url}...")
             stream_url = get_live_stream_url(page_url)
-            print('URL: ',stream_url)
-            
-            # # 開啟新的進程來顯示預覽畫面
-            if(False):
-                preview_process = multiprocessing.Process(target=show_preview, args=(stream_url,))
-                preview_process.start()
-                process.start()
-                processes.append(preview_process)
-
-            # 
+            print(f"{page_url} is online. Starting recording...")
             filename = generate_filename(page_url)
-            # print(f"Recording stream from {stream_url} to {filename}...")
-            # record_process  = record_stream(stream_url, generate_filename(filename), duration) 
-            record_process  = multiprocessing.Process(target=record_stream, args=(stream_url, filename, duration))
-            record_process .start()
-            processes.append(record_process)
-
-            # 轉檔
-            if(False):
-                fixed_filename = f"fixed_{filename}"
-                print(f"Remuxing {filename} to {fixed_filename}...")
-                remux_file(filename, fixed_filename)
-                print(f"Finished remuxing {filename} to {fixed_filename}")
+            process = multiprocessing.Process(target=record_stream, args=(stream_url, filename, duration))
+            process.start()
+            online_streams[page_url] = process    
             
         except Exception as e:
-            print(f"Error recording {page_url}: {e}")
+            print(f"{page_url} is offline. Adding to offline list.")
+            offline_streams.append(page_url)
+    
+    monitor_process = multiprocessing.Process(target=monitor_streams, args=(online_streams, offline_streams, duration))
+    
     try:
-        while True:
-            for process in processes:
-                if not process.is_alive():
-                    processes.remove(process)
-            if not processes:
-                break
+        monitor_process.start()
+    except Exception:
+        print('error')
+
+    try:
+        monitor_process.join()
     except KeyboardInterrupt:
-        print("Stopping recording...")
-        for process in processes:
+        print("Stopping all processes...")
+        monitor_process.terminate()
+        monitor_process.join()
+        for process in online_streams.values():
             process.terminate()
-        for process in processes:
             process.join()
-            
-    # try:
-    #     while True:
-    #         time.sleep(1)  # 每秒檢查一次
-    # except KeyboardInterrupt:
-    #     print("Stopping recording...")
-    #     for process in processes:
-    #         process.terminate()
-    #     for process in processes:
-    #         process.wait()
-    #     for ts_filename in streams.values():
-    #         mp4_filename = ts_filename.replace('.ts', '.mp4')
-    #         print(f"Converting {ts_filename} to {mp4_filename}...")
-    #         convert_ts_to_mp4(ts_filename, mp4_filename)
-    #         print(f"Finished converting {ts_filename} to {mp4_filename}")
 
 if __name__ == '__main__':
     main()
