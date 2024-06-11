@@ -30,8 +30,8 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
     // isTest: true
   })
   useEffect(() => {
-    if (ChannelInfo) {
-      setLiveUrl(ChannelInfo.stream_url);
+    if (ChannelInfo && true) {
+      setLiveUrl(ChannelInfo.live_stream_url);
     }
   }, [ChannelInfo, setLiveUrl]);
 

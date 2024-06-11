@@ -28,10 +28,9 @@ def process_url_or_name(url, data, name=None):
     return None
 
 def update_data_store_and_file(data_store, new_item):
-    data_store["live_list"].append(new_item)
-    data = read_json_file(JSON_FILE_PATH)
-    data["live_list"].append(new_item)
-    write_json_file(data, JSON_FILE_PATH)
+    if "live_list" in data_store:
+        data_store["live_list"].append(new_item)
+        write_json_file(data_store, JSON_FILE_PATH)
 
 def setup_routes(app, data_store):
     @app.route('/api/queryandaddlist', methods=['POST'])
