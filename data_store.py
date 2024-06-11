@@ -56,7 +56,8 @@ def read_json_file(file_path=JSON_FILE_PATH):
         return {}
     
 # 寫入JSON檔案
-def write_json_file(data={}, file_path=JSON_FILE_PATH):
+def write_json_file(data_store={}, file_path=JSON_FILE_PATH):
+    data = dict(data_store)  # 將 DictProxy 轉換為普通字典
     print(f"寫入JSON檔案：{file_path}")
     with open(file_path, 'w', encoding='utf-8') as file:
         json.dump(data, file, ensure_ascii=False, indent=4)

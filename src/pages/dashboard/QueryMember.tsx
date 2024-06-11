@@ -139,17 +139,14 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
 
   return (
     <>
-      <Card
-        style={{ marginBottom: 10 }}
-        title={
-          <Title
-            level={4}
-            style={{ fontWeight: 'bold', margin: 0 }}
-          >
-            新增交易
-          </Title>
-        }
-      >
+      <Card style={{ marginBottom: 10 }}>
+        <Title
+          level={5}
+          style={{ fontWeight: 'bold', margin: 0 }}
+        >
+          頻道查詢
+        </Title>
+
         <Form
           layout='vertical'
           form={form}

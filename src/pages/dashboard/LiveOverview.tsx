@@ -18,7 +18,7 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
         header: { borderBottom: 0 },
       }}
     >
-      <Space style={{ margin: 10 }}>
+      <Space style={{ margin: '0 0 10px 0' }}>
         <Title
           level={3}
           style={{ fontWeight: 'bold', margin: 0, marginRight: 10 }}
@@ -40,6 +40,7 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
           playing
           controls
           width="100%"
+          height="100%"
         />
       )}
     </Card>
