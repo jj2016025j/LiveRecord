@@ -56,6 +56,18 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
 
   const items: DescriptionsProps['items'] = (ChannelInfo)
     ? [
+
+      {
+        key: 'preview_image',
+        label: '預覽圖',
+        children: (ChannelInfo.preview_image ?
+          <img
+            src={ChannelInfo.preview_image}
+            alt="Preview"
+            style={{ width: 50, height: 50 }}
+          /> :
+          <>無</>)
+      },
       {
         key: 'id',
         label: '編號ID',

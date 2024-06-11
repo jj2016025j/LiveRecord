@@ -1,9 +1,11 @@
 import os
 import multiprocessing
 from flask import jsonify, request
-from data_store import generate_filename, generate_unique_id, get_live_stream_url, write_json_file
+from data_store import get_live_stream_url, write_json_file
 from recording import capture_preview_image, record_stream
 from dotenv import load_dotenv
+
+from utils import generate_filename, generate_unique_id
 
 # 載入 .env 文件中的環境變數
 load_dotenv()
@@ -11,12 +13,14 @@ load_dotenv()
 # 從環境變數中讀取 JSON 文件路徑
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
 PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
+FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
 
 def process_url_or_name(url, data, name=None):
     live_stream_url, status = get_live_stream_url(url)
     if status in ["online", "offline"]:
         new_id = generate_unique_id()
         preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+        print(f'取得圖片路徑{preview_image_path}')
         return {
             "id": new_id,
             "name": name or url.split('/')[-2],
@@ -209,7 +213,7 @@ def setup_routes(app, data_store):
                     try:
                         live_stream_url, status = get_live_stream_url(item["url"])
                         if status == "online":
-                            filename_template = generate_filename(item["url"])
+                            filename_template = generate_filename(item["url"], FILE_PATH)
                             process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
                             process.start()
                             data_store["online_streams"][item["url"]] = process

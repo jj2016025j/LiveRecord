@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import subprocess
 
-from data_store import extract_name_from_url
+from utils import extract_name_from_steam_url
 
 def execute_ffmpeg_command(command):
     """
@@ -37,7 +37,7 @@ def capture_preview_image(live_stream_url, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
-    liveName = extract_name_from_url(live_stream_url)
+    liveName = extract_name_from_steam_url(live_stream_url)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     preview_image_path = os.path.join(output_dir, f"preview_{liveName}_{timestamp}.jpg")
     

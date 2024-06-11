@@ -1,31 +1,14 @@
 from datetime import datetime
 import json
-import re
-import uuid
 import os
 from get_live_stream_url import get_live_stream_url
+from recording import capture_preview_image
+from utils import extract_name_from_url, generate_unique_id
 
 # 從環境變數中讀取檔案路徑
 FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
-
-# 生成唯一ID的函數
-def generate_unique_id():
-    return str(uuid.uuid4())
-
-# 從URL中提取名稱
-def extract_name_from_url(url):
-    match = re.search(r'chaturbate\.com\/([^\/]+)\/', url)
-    if match:
-        return match.group(1)
-    return ''
-
-# 從URL中提取名稱
-def extract_name_from_url(url):
-    match = re.search(r'amlst:([^:]+?)-sd', url)
-    if match:
-        return match.group(1)
-    return None
+PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 
 # 提取直播流
 def extract_live_streams(json_data):
@@ -37,16 +20,6 @@ def generate_url_from_name(name):
     if name and name != 'unknown':
         return f"https://chaturbate.com/{name}/"
     return ''
-
-# 生成檔案名稱及路徑，如果同名則更改名稱
-def generate_filename(url):
-    fixed_path = FILE_PATH
-    match = re.search(r'chaturbate\.com\/([^\/]+)\/', url)
-    file_name = 'unknown'
-    if match:
-        file_name = match.group(1)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{fixed_path}\\{file_name}_{timestamp}.ts"
 
 # 讀取JSON檔案
 def read_json_file(file_path=JSON_FILE_PATH):
@@ -75,10 +48,16 @@ def write_json_file(data_store):
                 data_dict = data_store.copy()
             else:
                 data_dict = dict(data_store)
+                if data_dict['live_stream_url']:
+                    data_dict['preview_image'] = capture_preview_image(data_dict['live_stream_url'], PREVIEW_IMAGE_DIR)
             json.dump(data_dict, file, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"寫入 JSON 文件時發生錯誤: {e}")
         raise
+
+def update_data_store_and_file(data_store, new_item):
+    data_store["live_list"].append(new_item)
+    write_json_file(data_store)
     
 # 檢查並補全資料
 def check_and_complete_data(item):

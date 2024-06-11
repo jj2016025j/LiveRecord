@@ -14,6 +14,7 @@ type QueryChannelRes = {
   viewed: boolean,
   // LiveUrl: string,
   live_stream_url: string,
+  preview_image: string,
 };
 
 type QueryChannelProps = {

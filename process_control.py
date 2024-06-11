@@ -2,8 +2,9 @@
 from datetime import datetime
 import time
 import multiprocessing
-from data_store import extract_live_streams, get_live_stream_url, generate_filename, read_json_file
+from data_store import extract_live_streams, get_live_stream_url
 from recording import record_stream
+from utils import generate_filename
 
 def check_and_record_stream(page_url, data_store, lock, status_changes):
     """

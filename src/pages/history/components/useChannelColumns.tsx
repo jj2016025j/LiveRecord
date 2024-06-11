@@ -40,6 +40,23 @@ const useChannelColumns = () => {
       },
       width: 50,
     },
+    {
+      title: '圖片',
+      dataIndex: 'preview_image',
+      key: 'preview_image',
+      align: 'center',
+      render: (preview_image) => {
+        console.log('preview_image', preview_image)
+        return preview_image ?
+          <img
+            src={preview_image}
+            alt="Preview"
+            style={{ width: 50, height: 50 }}
+          /> :
+          <>無</>;
+      },
+      width: 50,
+    },
     // {
     //   title: '縮圖預覽',
     //   dataIndex: 'previewImage',
