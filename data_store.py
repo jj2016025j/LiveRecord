@@ -55,13 +55,20 @@ def read_json_file(file_path=JSON_FILE_PATH):
         print(f"讀取JSON檔案時出錯：{e}")
         return {}
     
-# 寫入JSON檔案
-def write_json_file(data_store, file_path=JSON_FILE_PATH):
-    data = dict(data_store)  # 將 DictProxy 轉換為普通字典
-    print(f"寫入JSON檔案：{file_path}")
-    with open(file_path, 'w', encoding='utf-8') as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-
+# 將 data_store 寫入文件的函數
+def write_json_file(data_store):
+    try:
+        with open(JSON_FILE_PATH, 'w', encoding='utf-8') as file:
+            # 如果 data 是 DictProxy 對象，先將其轉換為普通字典
+            if isinstance(data_store, dict):
+                data_dict = data_store.copy()
+            else:
+                data_dict = dict(data_store)
+            json.dump(data_dict, file, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"寫入 JSON 文件時發生錯誤: {e}")
+        raise
+    
 # 檢查並補全資料
 def check_and_complete_data(item):
     # 確保有 'id' 鍵

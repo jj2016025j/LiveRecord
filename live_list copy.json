@@ -4878,7 +4878,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
+            "live_stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4889,7 +4889,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
+            "live_stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4900,7 +4900,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
+            "live_stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4911,7 +4911,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
+            "live_stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4922,7 +4922,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
+            "live_stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4933,7 +4933,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge6-nrt.live.mmcdn.com/live-hls/amlst:laurenxcros-sd-2e3014668d1a0e518c07e60cea34d15ddfbd7038b341eb4fa814ffff841d4b28_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge6-nrt.live.mmcdn.com/live-hls/amlst:laurenxcros-sd-2e3014668d1a0e518c07e60cea34d15ddfbd7038b341eb4fa814ffff841d4b28_trns_h264/playlist.m3u8"
         },
         {
             "id": "47e53ffc-f220-4810-bf9e-961898112e71",
@@ -4943,7 +4943,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge15-sin.live.mmcdn.com/live-hls/amlst:tiny_flame-sd-4b99435195eedc2905ee4fd53e6e670bd58d0ec9f003774c4c81ee412fe2d5c5_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge15-sin.live.mmcdn.com/live-hls/amlst:tiny_flame-sd-4b99435195eedc2905ee4fd53e6e670bd58d0ec9f003774c4c81ee412fe2d5c5_trns_h264/playlist.m3u8"
         }
     ],
     "recording_status": {},

@@ -4878,7 +4878,6 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4889,7 +4888,6 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4900,7 +4898,6 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4911,7 +4908,6 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4922,7 +4918,6 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": null,
             "live_stream_url": null
         },
         {
@@ -4933,7 +4928,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge6-nrt.live.mmcdn.com/live-hls/amlst:laurenxcros-sd-2e3014668d1a0e518c07e60cea34d15ddfbd7038b341eb4fa814ffff841d4b28_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge6-nrt.live.mmcdn.com/live-hls/amlst:laurenxcros-sd-2e3014668d1a0e518c07e60cea34d15ddfbd7038b341eb4fa814ffff841d4b28_trns_h264/playlist.m3u8"
         },
         {
             "id": "47e53ffc-f220-4810-bf9e-961898112e71",
@@ -4943,7 +4938,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge15-sin.live.mmcdn.com/live-hls/amlst:tiny_flame-sd-4b99435195eedc2905ee4fd53e6e670bd58d0ec9f003774c4c81ee412fe2d5c5_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge15-sin.live.mmcdn.com/live-hls/amlst:tiny_flame-sd-4b99435195eedc2905ee4fd53e6e670bd58d0ec9f003774c4c81ee412fe2d5c5_trns_h264/playlist.m3u8"
         },
         {
             "id": "cfa04047-aabd-4d9e-9401-7a58df652513",
@@ -4953,7 +4948,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge13-sin.live.mmcdn.com/live-hls/amlst:shycinderella-sd-08c1e68b4a87c56412bf3c1f53e5a87435907ff83d5fd0410300e59b4d57c8d2_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge13-sin.live.mmcdn.com/live-hls/amlst:shycinderella-sd-08c1e68b4a87c56412bf3c1f53e5a87435907ff83d5fd0410300e59b4d57c8d2_trns_h264/playlist.m3u8"
         },
         {
             "id": "4a6f9ac7-23f0-403c-a84e-389d0c36d58c",
@@ -4963,7 +4958,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge5-sin.live.mmcdn.com/live-hls/amlst:miss_soffy-sd-2a4d742786a8ff97afa1b665b7ac2ce6e3a93c507231fe5592564ae207d42c52_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge5-sin.live.mmcdn.com/live-hls/amlst:miss_soffy-sd-2a4d742786a8ff97afa1b665b7ac2ce6e3a93c507231fe5592564ae207d42c52_trns_h264/playlist.m3u8"
         },
         {
             "id": "7c2163fc-d439-4bbf-b3a1-ce5b74dc58ea",
@@ -4973,7 +4968,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge9-sin.live.mmcdn.com/live-hls/amlst:antonia_savatto_-sd-d141b94e48a1f27a258f5079e784e35da7caa930d6ed5698d65573269dbcb1f9_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge9-sin.live.mmcdn.com/live-hls/amlst:antonia_savatto_-sd-d141b94e48a1f27a258f5079e784e35da7caa930d6ed5698d65573269dbcb1f9_trns_h264/playlist.m3u8"
         },
         {
             "id": "48d38b90-c41b-42c9-9f09-1bdea28b93e2",
@@ -4983,7 +4978,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge26-sin.live.mmcdn.com/live-hls/amlst:liia_sweett-sd-a7b5e7017fc1fbedd0539e1a562a49fb8b94afb788d166a68179c890a4cbcab5_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge26-sin.live.mmcdn.com/live-hls/amlst:liia_sweett-sd-a7b5e7017fc1fbedd0539e1a562a49fb8b94afb788d166a68179c890a4cbcab5_trns_h264/playlist.m3u8"
         },
         {
             "id": "be60f048-96bb-402d-9b12-240ecf05c230",
@@ -4993,7 +4988,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge21-sin.live.mmcdn.com/live-hls/amlst:_littlecherryy_-sd-5dfb529bd1d75ee0744f25d65a8f7f9e0c905a30e419f5c5c67ef5a8cf306fd3_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge21-sin.live.mmcdn.com/live-hls/amlst:_littlecherryy_-sd-5dfb529bd1d75ee0744f25d65a8f7f9e0c905a30e419f5c5c67ef5a8cf306fd3_trns_h264/playlist.m3u8"
         },
         {
             "id": "4fbbe565-99eb-4eb1-a830-9e3e6e601bf3",
@@ -5003,7 +4998,7 @@
             "isFavorite": false,
             "autoRecord": false,
             "viewed": false,
-            "stream_url": "https://edge15-nrt.live.mmcdn.com/live-hls/amlst:liia_sweett-sd-a7b5e7017fc1fbedd0539e1a562a49fb8b94afb788d166a68179c890a4cbcab5_trns_h264/playlist.m3u8"
+            "live_stream_url": "https://edge15-nrt.live.mmcdn.com/live-hls/amlst:liia_sweett-sd-a7b5e7017fc1fbedd0539e1a562a49fb8b94afb788d166a68179c890a4cbcab5_trns_h264/playlist.m3u8"
         }
     ],
     "recording_status": {},

@@ -2,7 +2,6 @@ import { TradeTypeNum, useTestMutation, UseTestMutationProps } from "@/utils";
 import { axiosRoot } from "@/utils/axiosRoot";
 
 type QueryChannelRes = {
-  live_stream_url: any;
   id?: string;
   // previewImage: string;
   name: string;
@@ -14,7 +13,7 @@ type QueryChannelRes = {
   isFavorite: boolean,
   viewed: boolean,
   // LiveUrl: string,
-  stream_url: string,
+  live_stream_url: string,
 };
 
 type QueryChannelProps = {

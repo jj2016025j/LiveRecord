@@ -18,10 +18,10 @@ def generate_filename(url):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{fixed_path}\\{file_name}_{timestamp}.mp4"
 
-def record_stream(stream_url, filename, duration):
+def record_stream(live_stream_url, filename, duration):
     command = [
         'ffmpeg',
-        '-i', stream_url,
+        '-i', live_stream_url,
         '-c', 'copy',
         '-c:a', 'aac',
         '-bsf:a', 'aac_adtstoasc',
@@ -66,8 +66,8 @@ def remux_file(input_file, filename):
     ]
     subprocess.run(command)
     
-def show_preview(stream_url):
-    cap = cv2.VideoCapture(stream_url)
+def show_preview(live_stream_url):
+    cap = cv2.VideoCapture(live_stream_url)
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -101,10 +101,10 @@ def monitor_streams(online_streams, offline_streams, duration):
         print("Checking offline streams...")
         for page_url in offline_streams.copy():
             try:
-                stream_url = get_live_stream_url(page_url)
+                live_stream_url = get_live_stream_url(page_url)
                 print(f"{page_url} is now online.")
                 filename = generate_filename(page_url)
-                process = multiprocessing.Process(target=record_stream, args=(stream_url, filename, duration))
+                process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename, duration))
                 process.start()
                 online_streams[page_url] = process
                 offline_streams.remove(page_url)
@@ -129,10 +129,10 @@ def main():
     
     for page_url in streams:
         try:
-            stream_url = get_live_stream_url(page_url)
+            live_stream_url = get_live_stream_url(page_url)
             print(f"{page_url} is online. Starting recording...")
             filename = generate_filename(page_url)
-            process = multiprocessing.Process(target=record_stream, args=(stream_url, filename, duration))
+            process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename, duration))
             process.start()
             online_streams[page_url] = process    
             

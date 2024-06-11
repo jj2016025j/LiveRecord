@@ -18,9 +18,9 @@ from urllib3.util.retry import Retry
 #             if '.m3u8' in script.text:
 #                 start = script.text.find('https://')
 #                 end = script.text.find('.m3u8') + 5
-#                 stream_url = script.text[start:end]
-#                 stream_url = stream_url.encode('utf-8').decode('unicode-escape')
-#                 return stream_url, "online"
+#                 live_stream_url = script.text[start:end]
+#                 live_stream_url = live_stream_url.encode('utf-8').decode('unicode-escape')
+#                 return live_stream_url, "online"
     
 #     return None, "offline"
 
@@ -46,9 +46,9 @@ def get_live_stream_url(page_url):
                 if '.m3u8' in script.text:
                     start = script.text.find('https://')
                     end = script.text.find('.m3u8') + 5
-                    stream_url = script.text[start:end]
-                    stream_url = stream_url.encode('utf-8').decode('unicode-escape')
-                    return stream_url, "online"
+                    live_stream_url = script.text[start:end]
+                    live_stream_url = live_stream_url.encode('utf-8').decode('unicode-escape')
+                    return live_stream_url, "online"
 
         return None, "offline"
 
@@ -65,9 +65,9 @@ def get_live_stream_url(page_url):
         return None, "Request Error"
 def main():
     page_url = 'https://chaturbate.com/vixenp/'  # 替換為實際的直播頁面 URL
-    stream_url = get_live_stream_url(page_url)
-    if stream_url:
-        print(f'Found live stream URL: {stream_url}')
+    live_stream_url = get_live_stream_url(page_url)
+    if live_stream_url:
+        print(f'Found live stream URL: {live_stream_url}')
     else:
         print('No live stream URL found.')
 

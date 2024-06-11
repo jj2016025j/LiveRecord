@@ -13,7 +13,7 @@ def check_and_record_stream(page_url, data_store, lock, status_changes):
         if not page_url:
             print("URL為空")
             return
-        stream_url, status = get_live_stream_url(page_url)
+        live_stream_url, status = get_live_stream_url(page_url)
         with lock:
             if status == "online":
                 if page_url in data_store["offline_streams"]:
@@ -21,10 +21,9 @@ def check_and_record_stream(page_url, data_store, lock, status_changes):
                     status_changes["online"].append(page_url)
                 if page_url not in data_store["online_streams"]:
                     filename_template = generate_filename(page_url)
-                    process = multiprocessing.Process(target=record_stream, args=(stream_url, filename_template))
+                    process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
                     process.start()
                     data_store["online_streams"][page_url] = process
-                status_changes["continuing_online"].append(page_url)
             elif status == "offline":
                 if page_url in data_store["online_streams"]:
                     process = data_store["online_streams"].pop(page_url)
@@ -49,7 +48,7 @@ def monitor_streams(data_store, lock):
     try:
         while True:
             time.sleep(60)
-            status_changes = {"online": [], "continuing_online": [], "offline": []}
+            status_changes = {"online": [], "offline": []}
             processes = []
 
             print("正在檢查直播...")
@@ -76,11 +75,9 @@ def monitor_streams(data_store, lock):
             print(f"{current_time} 偵測結果:")
             if status_changes["online"]:
                 print(f"{current_time} 上線: {status_changes['online']}")
-            if status_changes["continuing_online"]:
-                print(f"{current_time} 持續在線: {status_changes['continuing_online']}")
             if status_changes["offline"]:
                 print(f"{current_time} 離線: {status_changes['offline']}")
-            if not (status_changes["online"] or status_changes["continuing_online"] or status_changes["offline"]):
+            if not (status_changes["online"] or status_changes["offline"]):
                 print(f"{current_time} 無變動 檢查完畢")
     except KeyboardInterrupt:
         print("監控進程被中斷")

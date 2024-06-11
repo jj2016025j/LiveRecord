@@ -1,7 +1,7 @@
 import os
 import multiprocessing
-from flask import Flask, jsonify, request
-from data_store import generate_filename, generate_unique_id, get_live_stream_url, read_json_file, write_json_file
+from flask import jsonify, request
+from data_store import generate_filename, generate_unique_id, get_live_stream_url, write_json_file
 from recording import record_stream
 from dotenv import load_dotenv
 
@@ -12,7 +12,7 @@ load_dotenv()
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
 
 def process_url_or_name(url, data, name=None):
-    stream_url, status = get_live_stream_url(url)
+    live_stream_url, status = get_live_stream_url(url)
     if status in ["online", "offline"]:
         new_id = generate_unique_id()
         return {
@@ -21,48 +21,64 @@ def process_url_or_name(url, data, name=None):
             "url": url,
             "status": status,
             "isFavorite": data.get('isFavorite', False),
-            "autoRecord": data.get('autoRecord', False),
+            "autoRecord": data.get('autoRecord', True),
             "viewed": data.get('viewed', False),
-            "stream_url": stream_url
+            "live_stream_url": live_stream_url,
+            "createTime": 'createTime',
+            "lastViewTime": 'lastViewTime',
         }
     return None
-
+        
+# 更新 data_store 並寫入文件的函數
 def update_data_store_and_file(data_store, new_item):
-    if "live_list" in data_store:
-        data_store["live_list"].append(new_item)
-        write_json_file(data_store, JSON_FILE_PATH)
-
+    try:
+        # 檢查並初始化 live_list
+        if "live_list" in data_store:
+            data_store["live_list"].append(new_item)
+            write_json_file(data_store, JSON_FILE_PATH)
+    except KeyError as e:
+        print(f"鍵錯誤: {e}")
+        raise
+    except Exception as e:
+        print(f"發生未知錯誤: {e}")
+        raise
+    
 def setup_routes(app, data_store):
     @app.route('/api/queryandaddlist', methods=['POST'])
     def query_and_add_list():
-        data = request.json
-        url_or_name_or_id = data.get('urlOrNameOrId')
-        
-        print(f"接收到的資料：{data}")
-        print(f"處理的網址或名稱或ID：{url_or_name_or_id}")
+        try:
+            data = request.json
+            url_or_name_or_id = data.get('urlOrNameOrId')
+            
+            print(f"接收到的資料：{data}")
+            print(f"處理的網址或名稱或ID：{url_or_name_or_id}")
 
-        existing_item = next((item for item in data_store["live_list"] if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
-        if existing_item:
-            stream_url, status = get_live_stream_url(existing_item["url"])
-            print(f"嘗試取得直播流：{existing_item}")
-            existing_item["live_stream_url"] = stream_url
-            existing_item["status"] = status
-            print(f"已存在的項目：{existing_item}")
-            return jsonify(existing_item), 200
-        
-        if "chaturbate.com" in url_or_name_or_id:
-            new_item = process_url_or_name(url_or_name_or_id, data)
-        else:
-            test_url = f"https://chaturbate.com/{url_or_name_or_id}/"
-            new_item = process_url_or_name(test_url, data, url_or_name_or_id)
-        
-        if new_item:
-            update_data_store_and_file(data_store, new_item)
-            print(f"新增的項目：{new_item}")
-            return jsonify(new_item), 201
-        print("未找到頁面")
-        return jsonify({"message": "Page not found"}), 404
-
+            existing_item = next((item for item in data_store["live_list"] if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
+            if existing_item:
+                live_stream_url, status = get_live_stream_url(existing_item["url"])
+                print(f"嘗試取得直播流：{existing_item}")
+                existing_item["live_stream_url"] = live_stream_url
+                existing_item["status"] = status
+                print(f"已存在的項目：{existing_item}")
+                return jsonify(existing_item), 200
+            
+            if "chaturbate.com" in url_or_name_or_id:
+                new_item = process_url_or_name(url_or_name_or_id, data)
+            else:
+                test_url = f"https://chaturbate.com/{url_or_name_or_id}/"
+                new_item = process_url_or_name(test_url, data, url_or_name_or_id)
+            
+            if new_item:
+                update_data_store_and_file(data_store, new_item)
+                print(f"新增的項目：{new_item}")
+                return jsonify(new_item), 201
+            print("未找到頁面")
+            return jsonify({"message": "Page not found"}), 404
+        except KeyError as e:
+            print(f"鍵錯誤: {e}")
+        except Exception as e:
+            print(f"發生未知錯誤: {e}")
+            
     @app.route('/api/deletelist', methods=['DELETE'])
     def delete_list():
         data = request.json
@@ -160,10 +176,10 @@ def setup_routes(app, data_store):
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Already recording"}), 400
                     
                     try:
-                        stream_url, status = get_live_stream_url(item["url"])
+                        live_stream_url, status = get_live_stream_url(item["url"])
                         if status == "online":
                             filename_template = generate_filename(item["url"])
-                            process = multiprocessing.Process(target=record_stream, args=(stream_url, filename_template))
+                            process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
                             process.start()
                             data_store["online_streams"][item["url"]] = process
                             print(f"開始錄製：{item['url']}")
