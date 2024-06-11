@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import multiprocessing
 from flask import jsonify, request
@@ -16,11 +17,17 @@ PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
 
 def process_url_or_name(url, data, name=None):
+    if not url:
+        raise ValueError("URL 不能為空")
+    
     live_stream_url, status = get_live_stream_url(url)
+    # if not live_stream_url:
+    #     raise ValueError("無法取得直播流")
+    
     if status in ["online", "offline"]:
         new_id = generate_unique_id()
-        preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
-        print(f'取得圖片路徑{preview_image_path}')
+        # preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+        # print(f'取得圖片路徑{preview_image_path}')
         return {
             "id": new_id,
             "name": name or url.split('/')[-2],
@@ -30,8 +37,8 @@ def process_url_or_name(url, data, name=None):
             "autoRecord": data.get('autoRecord', True),
             "viewed": data.get('viewed', False),
             "live_stream_url": live_stream_url,
-            "preview_image": preview_image_path,
-            "createTime": 'createTime',
+            # "preview_image": preview_image_path,
+            "createTime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "lastViewTime": 'lastViewTime',
         }
     return None
@@ -40,9 +47,11 @@ def process_url_or_name(url, data, name=None):
 def update_data_store_and_file(data_store, new_item):
     try:
         # 檢查並初始化 live_list
-        if "live_list" in data_store:
+        print(new_item)
+        print(data_store["live_list"])
+        if "live_list" in data_store and data_store["live_list"] != [] :
             data_store["live_list"].append(new_item)
-            write_json_file(data_store, JSON_FILE_PATH)
+            write_json_file(data_store)
     except KeyError as e:
         print(f"鍵錯誤: {e}")
         raise
@@ -53,12 +62,19 @@ def update_data_store_and_file(data_store, new_item):
 def setup_routes(app, data_store):
     @app.route('/api/queryandaddlist', methods=['POST'])
     def query_and_add_list():
-        try:
+        # try:
             data = request.json
             url_or_name_or_id = data.get('urlOrNameOrId')
             
             print(f"接收到的資料：{data}")
             print(f"處理的網址或名稱或ID：{url_or_name_or_id}")
+            
+            if url_or_name_or_id is None:
+                raise ValueError("Received None for 'urlOrNameOrId'")
+            
+            if not url_or_name_or_id:
+                print("未提供網址或名稱或ID")
+                return jsonify({"message": "未提供網址或名稱或ID"}), 400
 
             existing_item = next((item for item in data_store["live_list"] if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
             if existing_item:
@@ -76,17 +92,25 @@ def setup_routes(app, data_store):
                 new_item = process_url_or_name(test_url, data, url_or_name_or_id)
             
             if new_item:
+                # print(f"新增的項目：{new_item}")
                 update_data_store_and_file(data_store, new_item)
-                print(f"新增的項目：{new_item}")
                 return jsonify(new_item), 201
+            
             print("未找到頁面")
-            return jsonify({"message": "Page not found"}), 404
-        except KeyError as e:
-            print(f"鍵錯誤: {e}")
-            return jsonify({"message": "鍵錯誤"}), 500
-        except Exception as e:
-            print(f"發生未知錯誤: {e}")
-            return jsonify({"message": "鍵錯誤"}), 500
+            return jsonify({"message": "未找到頁面"}), 404
+
+        # except KeyError as e:
+        #     print(f"鍵錯誤: {e}")
+        #     return jsonify({"message": f"鍵錯誤: {e}"}), 500
+        # except TypeError as e:
+        #     print(f"類型錯誤: {e}")
+        #     return jsonify({"message": f"類型錯誤: {e}"}), 500
+        # except ValueError as e:
+        #     print(f"值錯誤: {e}")
+        #     return jsonify({"message": f"值錯誤: {e}"}), 500
+        # except Exception as e:
+        #     print(f"發生未知錯誤: {e}")
+        #     return jsonify({"message": f"發生未知錯誤: {e}"}), 500
             
     @app.route('/api/deletelist', methods=['DELETE'])
     def delete_list():

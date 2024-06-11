@@ -9,7 +9,7 @@ interface IOverviewCardProps {
 const { Title } = Typography;
 const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
   const [youtubeOpen, setYoutubeOpen] = useState(false)
-  const [liveOpen, setLiveOpen] = useState(false)
+  const [liveOpen, setLiveOpen] = useState(true)
 
   const { liveUrl } = porps
   return (

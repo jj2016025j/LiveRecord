@@ -43,13 +43,24 @@ def read_json_file(file_path=JSON_FILE_PATH):
 def write_json_file(data_store):
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as file:
+            data_dict = dict(data_store)
             # 如果 data 是 DictProxy 對象，先將其轉換為普通字典
             if isinstance(data_store, dict):
                 data_dict = data_store.copy()
             else:
                 data_dict = dict(data_store)
-                if data_dict['live_stream_url']:
-                    data_dict['preview_image'] = capture_preview_image(data_dict['live_stream_url'], PREVIEW_IMAGE_DIR)
+            # if data_dict['live_stream_url'] and not data_dict['preview_image']:
+            #     data_dict['preview_image'] = capture_preview_image(data_dict['live_stream_url'], PREVIEW_IMAGE_DIR)
+            # for item in data_dict.get('live_list', []):
+            #     # 確保 live_stream_url 和 preview_image 鍵存在
+            #     item.setdefault('live_stream_url', None)
+            #     item.setdefault('preview_image', None)
+            #     if item['live_stream_url'] and not item['preview_image']:
+            #         item['preview_image'] = capture_preview_image(item['live_stream_url'], PREVIEW_IMAGE_DIR)
+            # if data_dict['live_stream_url']:
+            #     data_dict['preview_image'] = capture_preview_image(data_dict['live_stream_url'], PREVIEW_IMAGE_DIR)
+            if not data_dict or data_dict == {}:
+                return
             json.dump(data_dict, file, ensure_ascii=False, indent=4)
     except Exception as e:
         print(f"寫入 JSON 文件時發生錯誤: {e}")
