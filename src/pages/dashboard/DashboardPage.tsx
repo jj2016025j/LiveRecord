@@ -1,7 +1,7 @@
 import { Col, Row, } from 'antd';
 import LiveOverview from './LiveOverview';
 import QueryMember from './QueryMember';
-import LiveList from '../history/LiveList';
+import LiveList from './LiveList';
 import { useState } from 'react';
 
 const DashboardPage = () => {

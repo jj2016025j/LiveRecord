@@ -39,11 +39,22 @@ def generate_filename(url):
 
 # 讀取JSON檔案
 def read_json_file(file_path=JSON_FILE_PATH):
+    """
+    讀取 JSON 文件並返回數據。
+    """
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        print(f"檔案不存在或為空：{file_path}")
+        return {}
     print(f"讀取JSON檔案：{file_path}")
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
-
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+            # print(f"取得資料：{data}")
+        return data
+    except json.JSONDecodeError as e:
+        print(f"讀取JSON檔案時出錯：{e}")
+        return {}
+    
 # 寫入JSON檔案
 def write_json_file(data={}, file_path=JSON_FILE_PATH):
     print(f"寫入JSON檔案：{file_path}")
@@ -97,7 +108,11 @@ def organize_json_file(data_store, file_path=JSON_FILE_PATH):
         for i in range(len(data["live_list"])):
             data["live_list"][i] = check_and_complete_data(data["live_list"][i])
         data_store["live_list"] = data["live_list"]
+    else:
+        print("JSON資料中不存在 'live_list' 鍵")
     write_json_file(data, file_path)
+    print("JSON 文件整理完畢...")
+
 
 # 提取直播流
 def extract_live_streams(json_data):
@@ -110,3 +125,36 @@ def extract_name_from_url(url):
     if match:
         return match.group(1)
     return None
+
+def initialize_data_store(data_store):
+    """
+    初始化直播流列表資料。
+    """
+    try:
+        JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
+        
+        if not os.path.exists(JSON_FILE_PATH):
+            raise FileNotFoundError(f"{JSON_FILE_PATH} 文件不存在。")
+
+        json_data = read_json_file(JSON_FILE_PATH)
+        
+        if not isinstance(json_data, dict) or 'live_list' not in json_data:
+            raise ValueError("JSON 文件格式錯誤或缺少 'live_list' 鍵。")
+        
+        live_list = json_data.get('live_list', [])
+        
+        if not isinstance(live_list, list):
+            raise ValueError("'live_list' 應該是一個列表。")
+        
+        data_store["live_list"] = live_list
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 初始化完成")
+        
+        return json_data
+    except FileNotFoundError as e:
+        print(f"錯誤: {e}")
+    except ValueError as e:
+        print(f"錯誤: {e}")
+    except KeyboardInterrupt:
+        print("初始化進程被中斷")
+    except Exception as e:
+        print(f"初始化過程中發生未知錯誤: {e}")

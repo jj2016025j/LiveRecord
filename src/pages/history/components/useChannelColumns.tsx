@@ -1,6 +1,7 @@
 import { useUpdateListStatus } from '@/api';
 import { ChannelStatus } from '@/utils';
 import { TableProps, Typography, Image, Checkbox, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 const liveOptions = [
   { label: '自動錄影', value: 'autoRecord' },
@@ -69,7 +70,18 @@ const useChannelColumns = () => {
         const truncatedText = needsTruncation
           ? `${url.slice(0, 4)}...${url.slice(-4)}`
           : url;
-        return <Text>{truncatedText || '無'}</Text>
+        // return <Text>{truncatedText || '無'}</Text>
+        return <Link
+          style={{
+            color: '#ED9200',
+            paddingInline: 15,
+          }}
+          to={url}
+          target='_blank'
+        >
+          {url || '無'}
+        </Link>
+
       },
       width: 100,
     },
@@ -119,7 +131,7 @@ const useChannelColumns = () => {
         return <Checkbox.Group
           options={liveOptions}
           defaultValue={defaultValue}
-          onChange={(value)=>{onChange(channel.id,value)}}
+          onChange={(value) => { onChange(channel.id, value) }}
         />;
       },
       width: 100,

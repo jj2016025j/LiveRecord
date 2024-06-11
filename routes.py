@@ -1,8 +1,8 @@
 import os
 import multiprocessing
 from flask import Flask, jsonify, request
-from data_store import generate_unique_id, get_live_stream_url, read_json_file, write_json_file
-from recording import record_stream, generate_filename
+from data_store import generate_filename, generate_unique_id, get_live_stream_url, read_json_file, write_json_file
+from recording import record_stream
 from dotenv import load_dotenv
 
 # 載入 .env 文件中的環境變數
@@ -130,14 +130,19 @@ def setup_routes(app, data_store):
         end = start + page_size
         paginated_list = filtered_list[start:end]
         
+        serverStatus = 'success' if paginated_list == [] else 'false'
         response = {
             "channelList": paginated_list,
-            "totalRecords": total_records,
+            "totalCount": total_records,
             "totalPages": total_pages,
             "currentPage": current_page,
-            "pageSize": page_size
+            "pageSize": page_size,
+            "serverStatus": serverStatus
         }
-        print(f"查詢結果：{response}")
+        if paginated_list == []:
+            print('未初始化完成或沒有資料')
+        else:
+            print(f"查詢成功：取得{len(paginated_list)}筆資料")
         return jsonify(response), 200
 
     @app.route('/api/recordingcontrol', methods=['POST'])

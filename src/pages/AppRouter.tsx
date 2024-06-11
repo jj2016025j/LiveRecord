@@ -4,7 +4,7 @@ import StaticLeader from '../components/StaticLeader';
 
 const ProtectedLayout = lazy(() => import('./layouts/ProtectedLayout'));
 const Dashboard = lazy(() => import('../pages/dashboard/DashboardPage'));
-const HistoryPage = lazy(() => import('./history/LiveList'));
+const HistoryPage = lazy(() => import('./dashboard/LiveList'));
 
 const NotFound = lazy(() => import('../pages/NotFound'));
 

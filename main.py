@@ -1,14 +1,16 @@
 from flask import Flask
-from data_store import organize_json_file
+from data_store import initialize_data_store, organize_json_file
+from process_control import monitor_streams, start_monitoring_and_recording
 from routes import setup_routes
-from recording import initialize_streams, monitor_streams
 import multiprocessing
 import signal
 import os
 import atexit
+import warnings
+warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
-ORGANIZE = os.getenv('ORGANIZE', False)
+ORGANIZE = os.getenv('ORGANIZE', 'False').lower() in ('true', '1', 't')
 
 def create_data_store():
     manager = multiprocessing.Manager()
@@ -28,12 +30,15 @@ def initialize_processes(data_store, lock):
     # 整理JSON文件
     if ORGANIZE:
         print("正在整理 JSON 文件...")
-        processes['organize'] = multiprocessing.Process(target=organize_json_file, args=(data_store,))
-        processes['organize'].start()
+        organize_json_file(data_store)
 
+    # 初始化資料
+    print("正在初始化資料...")
+    initialize_data_store(data_store)
+    
     # 初始化直播流狀態
     print("正在初始化直播流狀態...")
-    processes['initialize'] = multiprocessing.Process(target=initialize_streams, args=(data_store, lock,))
+    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, lock,))
     processes['initialize'].start()
 
     # 創建並啟動監控進程
@@ -44,11 +49,11 @@ def initialize_processes(data_store, lock):
     return processes
 
 def terminate_processes(processes):
-    print("正在終止進程...")
+    # print("正在終止進程...")
     for process in processes.values():
         process.terminate()
         process.join()
-    print("進程已終止。")
+    # print("進程已終止。")
 
 def signal_handler(sig, frame, processes):
     terminate_processes(processes)
@@ -75,9 +80,3 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=5555, debug=True)
     finally:
         terminate_processes(processes)
-        
-"""
-通常怎麼設計主控程式的架構?
-我的認知是以伺服器當主線
-在初始化後 啟動監控 最後啟用伺服器
-"""

@@ -1,11 +1,11 @@
 import { Card, Space, DatePicker, Input, Tabs, TabsProps, Button } from 'antd';
-import { useHxStatus } from './useHxStatus';
-import ChannelHistory from './components/ChannelHistory';
+import { useHxStatus } from '../history/useHxStatus';
+import ChannelHistory from './ChannelHistory';
 import { useDeleteChannels } from '@/api/transaction/useDeleteChannels';
 const { RangePicker } = DatePicker;
 
 interface IHistoryPageProps { }
-const HistoryPage: React.FunctionComponent<IHistoryPageProps> = (props) => {
+const LiveList: React.FunctionComponent<IHistoryPageProps> = (props) => {
   const { } = props;
   const [state, dispatch] = useHxStatus();
   const { dateFrom, dateTo, searchInput } = state;
@@ -60,4 +60,4 @@ const HistoryPage: React.FunctionComponent<IHistoryPageProps> = (props) => {
     </>
   );
 };
-export default HistoryPage;
+export default LiveList;

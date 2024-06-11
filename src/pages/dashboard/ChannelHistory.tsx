@@ -1,9 +1,9 @@
 import TableAlpha from '@/components/TableAlpha';
-import { HistoryPageInit } from '../useHxStatus';
+import { HistoryPageInit } from '../history/useHxStatus';
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { ChannelOptions, useQueryChannelList } from '@/api';
-import useChannelColumns from './useChannelColumns';
+import useChannelColumns from '../history/components/useChannelColumns';
 
 interface IChannelHistoryProps extends HistoryPageInit { }
 
@@ -21,9 +21,7 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
     mutate: query,
     data,
     isPending,
-  } = useQueryChannelList({
-    // isTest: true,
-  });
+  } = useQueryChannelList({});
   // console.log('data', data)
 
   useEffect(() => {
