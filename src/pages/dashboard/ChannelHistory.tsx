@@ -31,6 +31,7 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
       // dateTo: dateTo.format(),
       pageSize: pageSize,
       currentPage: page,
+      searchQuery: searchInput,
     });
   }, [dateFrom, dateTo, searchInput, pageSize, page]);
 

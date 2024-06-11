@@ -3,7 +3,6 @@ import json
 import re
 import uuid
 import os
-
 from get_live_stream_url import get_live_stream_url
 
 # 從環境變數中讀取檔案路徑
@@ -20,6 +19,18 @@ def extract_name_from_url(url):
     if match:
         return match.group(1)
     return ''
+
+# 從URL中提取名稱
+def extract_name_from_url(url):
+    match = re.search(r'amlst:([^:]+?)-sd', url)
+    if match:
+        return match.group(1)
+    return None
+
+# 提取直播流
+def extract_live_streams(json_data):
+    print("提取直播流URL")
+    return [item['url'] for item in json_data.get('live_list', [])]
 
 # 從名稱生成URL
 def generate_url_from_name(name):
@@ -108,7 +119,7 @@ def check_and_complete_data(item):
         item['status'] = status
     return item
 
-# 整理JSON檔案
+# 整理JSON檔案 清理重複資料
 def organize_json_file(data_store, file_path=JSON_FILE_PATH):
     print(f"整理JSON檔案：{file_path}")
     data = read_json_file(file_path)
@@ -120,19 +131,6 @@ def organize_json_file(data_store, file_path=JSON_FILE_PATH):
         print("JSON資料中不存在 'live_list' 鍵")
     write_json_file(data, file_path)
     print("JSON 文件整理完畢...")
-
-
-# 提取直播流
-def extract_live_streams(json_data):
-    print("提取直播流URL")
-    return [item['url'] for item in json_data.get('live_list', [])]
-
-# 從URL中提取名稱
-def extract_name_from_url(url):
-    match = re.search(r'amlst:([^:]+?)-sd', url)
-    if match:
-        return match.group(1)
-    return None
 
 def initialize_data_store(data_store):
     """

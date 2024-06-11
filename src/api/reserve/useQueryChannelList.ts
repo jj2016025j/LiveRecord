@@ -18,7 +18,7 @@ type ChannelOptions = {
   // viewers: number
   autoRecord: boolean,
   isFavorite: boolean,
-  viewed: boolean
+  viewed: boolean,
 };
 
 type ChannelListRes = {
@@ -33,6 +33,7 @@ type ChannelListProps = {
   dateTo?: string;
   pageSize?: number;
   currentPage?: number;
+  searchQuery: string;
 };
 
 type OtherProps = {

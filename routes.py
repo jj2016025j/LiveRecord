@@ -2,7 +2,7 @@ import os
 import multiprocessing
 from flask import jsonify, request
 from data_store import generate_filename, generate_unique_id, get_live_stream_url, write_json_file
-from recording import record_stream
+from recording import capture_preview_image, record_stream
 from dotenv import load_dotenv
 
 # 載入 .env 文件中的環境變數
@@ -10,11 +10,13 @@ load_dotenv()
 
 # 從環境變數中讀取 JSON 文件路徑
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
+PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 
 def process_url_or_name(url, data, name=None):
     live_stream_url, status = get_live_stream_url(url)
     if status in ["online", "offline"]:
         new_id = generate_unique_id()
+        preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
         return {
             "id": new_id,
             "name": name or url.split('/')[-2],
@@ -24,6 +26,7 @@ def process_url_or_name(url, data, name=None):
             "autoRecord": data.get('autoRecord', True),
             "viewed": data.get('viewed', False),
             "live_stream_url": live_stream_url,
+            "preview_image": preview_image_path,
             "createTime": 'createTime',
             "lastViewTime": 'lastViewTime',
         }
@@ -76,8 +79,10 @@ def setup_routes(app, data_store):
             return jsonify({"message": "Page not found"}), 404
         except KeyError as e:
             print(f"鍵錯誤: {e}")
+            return jsonify({"message": "鍵錯誤"}), 500
         except Exception as e:
             print(f"發生未知錯誤: {e}")
+            return jsonify({"message": "鍵錯誤"}), 500
             
     @app.route('/api/deletelist', methods=['DELETE'])
     def delete_list():
@@ -121,45 +126,71 @@ def setup_routes(app, data_store):
 
     @app.route('/api/getlist', methods=['GET'])
     def get_list():
-        current_page = request.args.get("currentPage", type=int, default=1)
-        page_size = request.args.get("pageSize", type=int, default=10)
-        is_favorite = request.args.get("isFavorite", type=lambda v: v.lower() == 'true' if v else None)
-        auto_record = request.args.get("autoRecord", type=lambda v: v.lower() == 'true' if v else None)
-        watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
+        try:
+            current_page = request.args.get("currentPage", type=int, default=1)
+            page_size = request.args.get("pageSize", type=int, default=10)
+            is_favorite = request.args.get("isFavorite", type=lambda v: v.lower() == 'true' if v else None)
+            auto_record = request.args.get("autoRecord", type=lambda v: v.lower() == 'true' if v else None)
+            watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
+            searchQuery = request.args.get("searchQuery", type=str, default="")
+            print('searchQuery', searchQuery)
+            
+            filtered_list = data_store["live_list"]
+            
+            if is_favorite is not None:
+                filtered_list = [item for item in filtered_list if item["isFavorite"] == is_favorite]
+            
+            if auto_record is not None:
+                filtered_list = [item for item in filtered_list if item["autoRecord"] == auto_record]
+            
+            if watched is not None:
+                filtered_list = [item for item in filtered_list if item["watched"] == watched]
+            
+            if searchQuery:
+                search_query_lower = searchQuery.lower()
+                print('search_query_lower', search_query_lower)
+                filtered_list = [
+                    item for item in filtered_list if (
+                        (item.get("id") and search_query_lower in item["id"].lower()) or
+                        (item.get("name") and search_query_lower in item["name"].lower()) or
+                        (item.get("url") and search_query_lower in item["url"].lower()) or
+                        (item.get("live_stream_url") and search_query_lower in item["live_stream_url"].lower()) or
+                        (item.get("status") and search_query_lower in item["status"].lower())
+                    )
+                ]
+                
+            total_records = len(filtered_list)
+            total_pages = (total_records + page_size - 1) // page_size
+            
+            start = (current_page - 1) * page_size
+            end = start + page_size
+            paginated_list = filtered_list[start:end]
+            
+            serverStatus = 'success' if paginated_list == [] else 'false'
+            
+            response = {
+                "channelList": paginated_list,
+                "totalCount": total_records,
+                "totalPages": total_pages,
+                "currentPage": current_page,
+                "pageSize": page_size,
+                "serverStatus": serverStatus
+            }
+            
+            if paginated_list == []:
+                print('未初始化完成或沒有資料')
+            else:
+                print(f"查詢成功：取得{len(paginated_list)}筆資料")
+                
+            return jsonify(response), 200
         
-        filtered_list = data_store["live_list"]
-        
-        if is_favorite is not None:
-            filtered_list = [item for item in filtered_list if item["isFavorite"] == is_favorite]
-        
-        if auto_record is not None:
-            filtered_list = [item for item in filtered_list if item["autoRecord"] == auto_record]
-        
-        if watched is not None:
-            filtered_list = [item for item in filtered_list if item["watched"] == watched]
-        
-        total_records = len(filtered_list)
-        total_pages = (total_records + page_size - 1) // page_size
-        
-        start = (current_page - 1) * page_size
-        end = start + page_size
-        paginated_list = filtered_list[start:end]
-        
-        serverStatus = 'success' if paginated_list == [] else 'false'
-        response = {
-            "channelList": paginated_list,
-            "totalCount": total_records,
-            "totalPages": total_pages,
-            "currentPage": current_page,
-            "pageSize": page_size,
-            "serverStatus": serverStatus
-        }
-        if paginated_list == []:
-            print('未初始化完成或沒有資料')
-        else:
-            print(f"查詢成功：取得{len(paginated_list)}筆資料")
-        return jsonify(response), 200
-
+        except KeyError as e:
+            print(f"鍵錯誤: {e}")
+            return jsonify({"error": f"鍵錯誤: {e}"}), 400
+        except Exception as e:
+            print(f"發生未知錯誤: {e}")
+            return jsonify({"error": f"發生未知錯誤: {e}"}), 500
+    
     @app.route('/api/recordingcontrol', methods=['POST'])
     def recording_control():
         data = request.json

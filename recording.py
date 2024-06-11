@@ -1,5 +1,9 @@
 # record.py
+from datetime import datetime
+import os
 import subprocess
+
+from data_store import extract_name_from_url
 
 def execute_ffmpeg_command(command):
     """
@@ -25,3 +29,25 @@ def record_stream(live_stream_url, filename_template):
         filename_template
     ]
     execute_ffmpeg_command(command)
+
+def capture_preview_image(live_stream_url, output_dir):
+    """
+    從直播流中截取一張預覽圖。
+    """
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    liveName = extract_name_from_url(live_stream_url)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    preview_image_path = os.path.join(output_dir, f"preview_{liveName}_{timestamp}.jpg")
+    
+    command = [
+        'ffmpeg',
+        '-i', live_stream_url,
+        '-frames:v', '1',
+        '-q:v', '2',
+        preview_image_path
+    ]
+    execute_ffmpeg_command(command)
+    
+    return preview_image_path

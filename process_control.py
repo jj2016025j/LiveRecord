@@ -74,9 +74,9 @@ def monitor_streams(data_store, lock):
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f"{current_time} 偵測結果:")
             if status_changes["online"]:
-                print(f"{current_time} 上線: {status_changes['online']}")
+                print(f"{current_time} 在線用戶: {status_changes['online']}")
             if status_changes["offline"]:
-                print(f"{current_time} 離線: {status_changes['offline']}")
+                print(f"{current_time} 離線人數: {len(status_changes['offline'])}")
             if not (status_changes["online"] or status_changes["offline"]):
                 print(f"{current_time} 無變動 檢查完畢")
     except KeyboardInterrupt:
@@ -102,7 +102,7 @@ def start_monitoring_and_recording(data_store, lock):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{current_time} 初始化結果:")
     if status_changes["online"]:
-        print(f"{current_time} 在線直播: {len(status_changes['online'])}")
+        print(f"{current_time} 在線直播: {status_changes['online']}")
     if status_changes["offline"]:
         print(f"{current_time} 離線直播: {len(status_changes['offline'])}")
     if not (status_changes["online"] or status_changes["continuing_online"] or status_changes["offline"]):
