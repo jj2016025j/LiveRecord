@@ -47,7 +47,6 @@ def record_stream(stream_url, filename, duration):
     # process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # return process
 
-
 def convert_ts_to_mp4(input_file, filename):
     command = [
         'ffmpeg',

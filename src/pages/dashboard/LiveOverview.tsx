@@ -9,6 +9,8 @@ interface IOverviewCardProps {
 const { Title } = Typography;
 const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
   const [youtubeOpen, setYoutubeOpen] = useState(false)
+  const [liveOpen, setLiveOpen] = useState(false)
+
   const { liveUrl } = porps
   return (
     <Card
@@ -26,9 +28,12 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
         <Button onClick={() => setYoutubeOpen(!youtubeOpen)}>
           YouTube 開關
         </Button>
+        {liveUrl && <Button onClick={() => setLiveOpen(!liveOpen)}>
+          Live 開關
+        </Button>}
       </Space>
       <br />
-      {liveUrl && <ReactPlayer url={liveUrl} playing controls width="100%" />}
+      {liveUrl && liveOpen && <ReactPlayer url={liveUrl} playing controls width="100%" />}
       {youtubeOpen && (
         <ReactPlayer
           url={'https://www.youtube.com/watch?v=gp2K_xfEDoU'}

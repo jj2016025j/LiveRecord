@@ -16,7 +16,7 @@ def record_stream(stream_url, filename_template):
     錄製直播流。
     """
     # print("直播網址:", stream_url)
-    # print("儲存路徑:", filename_template)
+    print("儲存路徑:", filename_template)
     command = [
         'ffmpeg',
         '-i', stream_url,
@@ -34,11 +34,11 @@ def check_and_record_stream(page_url, data_store, lock, status_changes):
     """
     try:
         if not page_url:
-            print("url為空")
+            print("URL為空")
             return
         stream_url, status = get_live_stream_url(page_url)
         with lock:
-            if status == "Online":
+            if status == "online":
                 if page_url in data_store["offline_streams"]:
                     data_store["offline_streams"].remove(page_url)
                     status_changes["online"].append(page_url)
@@ -48,7 +48,7 @@ def check_and_record_stream(page_url, data_store, lock, status_changes):
                     process.start()
                     data_store["online_streams"][page_url] = process
                 status_changes["continuing_online"].append(page_url)
-            elif status == "Offline":
+            elif status == "offline":
                 if page_url in data_store["online_streams"]:
                     process = data_store["online_streams"].pop(page_url)
                     process.terminate()
@@ -111,7 +111,7 @@ def initialize_streams(data_store, lock):
     json_data = read_json_file(json_file_path)
     data_store["live_list"] = json_data['live_list']
     streams = extract_live_streams(json_data)
-    # print('初始化完成', data_store["live_list"])
+    print('初始化完成')
     
     processes = []
     status_changes = {"online": [], "continuing_online": [], "offline": []}

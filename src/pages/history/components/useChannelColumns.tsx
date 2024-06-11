@@ -80,8 +80,8 @@ const useChannelColumns = () => {
       key: 'status',
       align: 'center',
       render: (status: ChannelStatus) => {
-        if (status === ChannelStatus.Online) return <span>正在線上</span>;
-        if (status === ChannelStatus.Offline) return <span>已離線</span>;
+        if (status === ChannelStatus.online) return <span>正在線上</span>;
+        if (status === ChannelStatus.offline) return <span>已離線</span>;
         if (status === ChannelStatus.Recording) return <span>錄製中</span>;
         if (status === ChannelStatus.Saving) return <span>正在儲存錄製</span>;
         return <span>未定義</span>;

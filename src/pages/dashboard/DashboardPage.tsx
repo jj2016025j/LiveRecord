@@ -1,6 +1,6 @@
 import { Col, Row, } from 'antd';
-import LiveOverview from './liveOverview/LiveOverview';
-import QueryMember from './queryMember/QueryMember';
+import LiveOverview from './LiveOverview';
+import QueryMember from './QueryMember';
 import LiveList from '../history/LiveList';
 import { useState } from 'react';
 

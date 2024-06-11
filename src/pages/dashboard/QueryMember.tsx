@@ -30,8 +30,10 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
     // isTest: true
   })
   useEffect(() => {
-    setLiveUrl(ChannelInfo?.stream_url)
-  }, [ChannelInfo])
+    if (ChannelInfo) {
+      setLiveUrl(ChannelInfo.stream_url);
+    }
+  }, [ChannelInfo, setLiveUrl]);
 
   const maxLength = 30
   const url = ChannelInfo?.url || ''
@@ -44,7 +46,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
     console.log('checked = ', checkedValues);
 
     const statusUpdate = {
-      urlOrNameOrId: ChannelInfo?.id,  // 替换为你的实际 URL 或 ID
+      urlOrNameOrId: ChannelInfo?.id,
       isFavorite: checkedValues.includes('isFavorite'),
       autoRecord: checkedValues.includes('autoRecord'),
       viewed: checkedValues.includes('viewed')
@@ -72,7 +74,12 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
       {
         key: 'status',
         label: '狀態',
-        children: <span>已離線</span>,
+        children:
+          ChannelInfo.status == 'online' ? <span style={{ color: 'green' }}>正在線上</span> :
+            ChannelInfo.status == 'offline' ? <span style={{ color: 'gray' }}>已離線</span> :
+              ChannelInfo.status == 'recording' ? <span style={{ color: 'red' }}>正在錄製</span> :
+                ChannelInfo.status == 'error' ? <span style={{ color: 'yellow' }}>發生錯誤</span> :
+                  <span>未定義的狀態</span>,
       },
       // {
       //   key: 'size',
@@ -93,21 +100,26 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
       {
         key: 'options',
         label: '其他選項',
-        children:
-          <Checkbox.Group options={options} defaultValue={['自動錄影']} onChange={onChange} />
-      },
-      {
-        key: 'viewed',
-        label: '已查看',
-        children:
-          <Text>{ChannelInfo.viewed == true ? '已查看' : '未查看'}</Text>
+        children: (
+          <Checkbox.Group
+            options={options}
+            defaultValue={['autoRecord']}
+            onChange={onChange}
+          />
+        ),
       },
       // {
-      //   key: 'operate',
-      //   label: '操作',
+      //   key: 'viewed',
+      //   label: '已查看',
       //   children:
-      //     <Button onClick={() => { setLiveUrl(ChannelInfo.LiveUrl) }}>{'查看預覽畫面'}</Button>
+      //     <Text>{ChannelInfo.viewed == true ? '已查看' : '未查看'}</Text>
       // },
+      {
+        key: 'operate',
+        label: '操作',
+        children:
+          <Button disabled={!ChannelInfo.live_stream_url} onClick={() => { setLiveUrl(ChannelInfo.live_stream_url) }}>{'查看預覽畫面'}</Button>
+      },
       // {
       //   key: 'preview',
       //   label: '縮圖預覽',
@@ -128,9 +140,6 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
   return (
     <>
       <Card
-        styles={{
-          header: { borderBottom: 0 },
-        }}
         style={{ marginBottom: 10 }}
         title={
           <Title
@@ -150,24 +159,13 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
           <Form.Item
             label='輸入網址/用戶名稱'
             name='customerId'
-            rules={[
-              {
-                required: true,
-                message: '請輸入會員編號!',
-              },
-            ]}
+            rules={[{ required: true, message: '請輸入會員編號!' }]}
           >
-            <Input
-              placeholder='輸入網址/用戶名稱'
-            />
+            <Input placeholder='輸入網址/用戶名稱' />
           </Form.Item>
           <Space>
             <Form.Item>
-              <Button
-                loading={isQuerying}
-                type='primary'
-                htmlType='submit'
-              >
+              <Button loading={isQuerying} type='primary' htmlType='submit'>
                 查詢/新增
               </Button>
             </Form.Item>
@@ -184,24 +182,16 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
           </Space>
         </Form>
         {isQuerying && '載入中'}
-        {
-          !!ChannelInfo && (
-            <Descriptions
-              items={items}
-              bordered
-              size='small'
-              column={{
-                xxl: 3,
-                xl: 2,
-                lg: 2,
-                md: 2,
-              }}
-            />
-          )
-        }
-        {
-          !ChannelInfo && <Empty description='查無會員，請引導客人至網站註冊' />
-        }
+        {ChannelInfo ? (
+          <Descriptions
+            items={items}
+            bordered
+            size='small'
+            column={{ xxl: 3, xl: 2, lg: 2, md: 2 }}
+          />
+        ) : (
+          <Empty description='查無會員，請引導客人至網站註冊' />
+        )}
       </Card >
     </>
   );

@@ -24,8 +24,8 @@ enum TradeTypeNum {
 
 enum ChannelStatus {
   UndefinedStatus = -1,
-  Online = 1,
-  Offline = 2,
+  online = 1,
+  offline = 2,
   Recording = 3,
   Saving = 4
 }
