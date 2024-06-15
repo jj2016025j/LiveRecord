@@ -87,16 +87,14 @@ def monitor_streams(data_store, lock):
             if data_store["online"]:
                 online_users_last_time = online_users
                 online_users = len(data_store['online'])
-                print(f"{current_time} 在線用戶: {data_store['online']}")
             if data_store["offline"]:
                 offline_users_last_time = offline_users
                 offline_users = len(data_store['offline'])
-                print(f"{current_time} 離線人數: {len(data_store['offline'])}")
-            if offline_users != offline_users_last_time:
-                print(f"離線人數變動: {offline_users_last_time} => {offline_users} ")
-            elif online_users != online_users_last_time:
-                print(f"在線人數變動: {online_users_last_time} => {online_users} ")
-            else:
+            print(f"{current_time} 在線直播: {data_store['online']}")
+            print(f"{current_time} 離線直播人數: {len(data_store['offline'])}")
+            print(f"離線人數變動: {offline_users_last_time} => {offline_users} ")
+            print(f"在線人數變動: {online_users_last_time} => {online_users} ")
+            if offline_users == offline_users_last_time and online_users == online_users_last_time:
                 print(f"{current_time} 無變動 檢查完畢")
                 
     except KeyboardInterrupt:
@@ -123,10 +121,8 @@ def start_monitoring_and_recording(data_store, lock):
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"{current_time} 初始化結果:")
-    if data_store["online"]:
-        print(f"{current_time} 在線直播: {data_store['online']}")
-    if data_store["offline"]:
-        print(f"{current_time} 離線直播: {len(data_store['offline'])}")
+    print(f"{current_time} 在線直播: {data_store['online']}")
+    print(f"{current_time} 離線直播: {len(data_store['offline'])}")
     if not (data_store["online"] or data_store["offline"]):
-        print(f"{current_time} 無任何自動錄製的直播在線 初始化完畢")
+        print(f"{current_time} 無任何自動錄製的直播在線")
     print(f"{current_time} 初始化直播流完成...")

@@ -91,13 +91,20 @@ def organize_json_file(data_store, file_path=JSON_FILE_PATH):
     write_json_file(data_store)
     print("JSON 文件整理完畢...")
 
-def update_data_store_and_file(data_store, new_item):
+def update_data_store_and_file(data_store, new_item, lock):
     """
     更新 data_store 並寫入 JSON 檔案。
     新增一筆資料
     """
-    data_store["live_list"].append(new_item)
-    write_json_file(data_store)
+    with lock:
+        print(len(data_store["live_list"]))
+        print(data_store["live_list"])
+        updated_live_list = list(data_store["live_list"])
+        updated_live_list.append(new_item)
+        data_store["live_list"] = updated_live_list
+        print(len(data_store["live_list"]))
+        print(data_store["live_list"])
+        write_json_file(data_store)
 
 def update_data_store(data_store, new_data):
     """
@@ -114,28 +121,31 @@ def update_data_store(data_store, new_data):
     return data_store
 
 def initialize_data_store(data_store):
-    # """
-    # 初始化直播流列表資料。
-    # 把讀取的資料放到共用資料data_store中
-    # """
-    # try:
+    """
+    初始化直播流列表資料。
+    把讀取的資料放到共用資料data_store中
+    """
+    print('初始化資料', data_store)
+    try:
         if not os.path.exists(JSON_FILE_PATH):
             raise FileNotFoundError(f"{JSON_FILE_PATH} 文件不存在。")
 
         json_data = read_json_file(JSON_FILE_PATH)
-        
+
         if not isinstance(json_data, dict) or 'live_list' not in json_data:
             raise ValueError("JSON 文件格式錯誤或缺少 'live_list' 鍵。")
 
         live_list = json_data.get('live_list', [])
-        
-        # # 确保每个条目包含 'url' 键
-        # for item in live_list:
-        #     item = check_and_complete_data(item)
+        print('取得 live_list 筆數:', len(live_list))
+        # 確保每個條目包含必要的鍵值
+        for item in live_list:
+            item = check_and_complete_data(item)
         
         autoRecord = [item["url"] for item in live_list if item.get("autoRecord")]
         favorites = [item["id"] for item in live_list if item.get("isFavorite")]
-        
+        print('取得 autoRecord 筆數:', len(autoRecord))
+        print('取得 favorites 筆數:', len(favorites))
+
         if not isinstance(live_list, list):
             raise ValueError("'live_list' 應該是一個列表。")
         
@@ -145,14 +155,17 @@ def initialize_data_store(data_store):
         data_store["autoRecord"] = autoRecord
         data_store["favorites"] = favorites
         
+        print(f"初始化的直播流列表: {len(live_list)}")
+        print(f"初始化的自動錄製列表: {len(autoRecord)}")
+        print(f"初始化的收藏列表: {len(favorites)}")
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} 初始化完成")
         
         return json_data
-    # except FileNotFoundError as e:
-    #     print(f"錯誤: {e}")
-    # except ValueError as e:
-    #     print(f"錯誤: {e}")
-    # except KeyboardInterrupt:
-    #     print("初始化進程被中斷")
-    # except Exception as e:
-    #     print(f"初始化過程中發生未知錯誤: {e}")
+    except FileNotFoundError as e:
+        print(f"錯誤: {e}")
+    except ValueError as e:
+        print(f"錯誤: {e}")
+    except KeyboardInterrupt:
+        print("初始化進程被中斷")
+    except Exception as e:
+        print(f"初始化過程中發生未知錯誤: {e}")

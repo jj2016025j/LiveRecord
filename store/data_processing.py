@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 from utils.utils import extract_name_from_url, generate_unique_id, generate_url_from_name
 from recording.get_live_stream_url import get_live_stream_url
@@ -10,6 +10,7 @@ PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 serial_number_counter = 1
 
 def check_and_complete_data(item):
+    
     global serial_number_counter
     item.setdefault('id', generate_unique_id())
     if 'url' in item and (not item.get('name') or item['name'] == 'unknown'):
@@ -26,10 +27,12 @@ def check_and_complete_data(item):
     item.setdefault('autoRecord', False)
     item.setdefault('viewed', False)
     
-    if not item.get('live_stream_url') and item.get('url'):
-        item['live_stream_url'], item['status'] = get_live_stream_url(item['url'])
-    if item.get('live_stream_url') and not item.get('preview_image'):
-        item['preview_image'] = capture_preview_image(item['live_stream_url'], 'preview_images')
+    # if not item.get('live_stream_url') and item.get('url'):
+    #     print(item['url'])
+    #     item['live_stream_url'], item['status'] = get_live_stream_url(item['url'])
+    # if item.get('live_stream_url') and not item.get('preview_image'):
+    #     print(item['live_stream_url'])
+    #     item['preview_image'] = capture_preview_image(item['live_stream_url'], 'preview_images')
     item.setdefault('createTime', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     item.setdefault('lastViewTime', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     
@@ -39,16 +42,18 @@ def check_and_complete_data(item):
     
     return item
 
-def process_url_or_name(data_store, url, data, name=None):
+def process_url_or_name(data_store, url, name=None):
     if not url:
         raise ValueError("URL 不能為空")
     
     live_stream_url, status = get_live_stream_url(url)
-    
+    print(f"嘗試取得直播流：{live_stream_url}，狀態:{status}")
+    preview_image_path = ''  # 赋予默认值
     if status in ["online", "offline"]:
         new_id = generate_unique_id()
-        preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
-        print(f'取得圖片路徑{preview_image_path}')
+        if live_stream_url:
+            preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+            print(f'取得圖片路徑{preview_image_path}')
         
         # 获取当前 live_list 长度作为流水号
         serial_number = len(data_store["live_list"]) + 1
@@ -58,9 +63,9 @@ def process_url_or_name(data_store, url, data, name=None):
             "name": name or url.split('/')[-2],
             "url": url,
             "status": status,
-            "isFavorite": data.get('isFavorite', False),
-            "autoRecord": data.get('autoRecord', True),
-            "viewed": data.get('viewed', False),
+            "isFavorite": False,
+            "autoRecord": True,
+            "viewed": False,
             "live_stream_url": live_stream_url,
             "preview_image": preview_image_path,
             "createTime": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

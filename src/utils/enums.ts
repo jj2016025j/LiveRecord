@@ -26,8 +26,8 @@ enum ChannelStatus {
   UndefinedStatus = -1,
   online = 1,
   offline = 2,
-  Recording = 3,
-  Saving = 4
+  recording = 3,
+  saving = 4
 }
 
 enum TradeAmountRange {

@@ -38,15 +38,15 @@ def initialize_processes(data_store, lock):
     print("正在初始化資料...")
     initialize_data_store(data_store)
     
-    # 初始化直播流狀態
-    print("正在初始化直播流狀態...")
-    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, lock,))
-    processes['initialize'].start()
+    # # 初始化直播流狀態
+    # print("正在初始化直播流狀態...")
+    # processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, lock,))
+    # processes['initialize'].start()
 
-    # 創建並啟動監控進程
-    print("正在啟動監控進程...")
-    processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, lock,))
-    processes['monitor'].start()
+    # # 創建並啟動監控進程
+    # print("正在啟動監控進程...")
+    # processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, lock,))
+    # processes['monitor'].start()
 
     return processes
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     lock = multiprocessing.Lock()
 
     # 設置路由
-    setup_routes(app, data_store)
+    setup_routes(app, data_store, lock)
 
     # 初始化並啟動進程
     processes = initialize_processes(data_store, lock)
