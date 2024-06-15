@@ -18,7 +18,7 @@ def record_stream(live_stream_url, filename_template):
     錄製直播流。
     """
     # print("直播網址:", live_stream_url)
-    print("儲存路徑:", filename_template)
+    # print("儲存路徑:", filename_template)
     command = [
         'ffmpeg',
         '-i', live_stream_url,

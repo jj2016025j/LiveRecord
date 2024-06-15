@@ -51,7 +51,6 @@ def setup_routes(app, data_store, lock):
             data = request.json
             url_or_name_or_id = data.get('urlOrNameOrId')
             
-            # print(f"接收到的資料：{data}")
             print(f"處理的網址或名稱或ID：{url_or_name_or_id}")
             
             if url_or_name_or_id is None:
@@ -61,7 +60,9 @@ def setup_routes(app, data_store, lock):
                 print("未提供網址或名稱或ID")
                 return jsonify({"message": "未提供網址或名稱或ID"}), 400
 
-            existing_item = next((item for item in data_store["live_list"] if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
+            updated_live_list = list(data_store["live_list"])
+
+            existing_item = next((item for item in updated_live_list if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
             if existing_item:
                 print(f"已存在的項目：{existing_item}")
                 live_stream_url, status = get_live_stream_url(existing_item["url"])
@@ -69,12 +70,12 @@ def setup_routes(app, data_store, lock):
                 existing_item["live_stream_url"] = live_stream_url
                 existing_item["status"] = status
 
-                # 更新 data_store 中的項目
-                for idx, item in enumerate(data_store["live_list"]):
+                for idx, item in enumerate(updated_live_list):
                     if item.get("id") == existing_item["id"]:
-                        data_store["live_list"][idx] = existing_item
+                        updated_live_list[idx] = existing_item
                         break
 
+                data_store["live_list"] = updated_live_list
                 return jsonify(existing_item), 200
             
             if "chaturbate.com" in url_or_name_or_id:
@@ -102,7 +103,7 @@ def setup_routes(app, data_store, lock):
         except Exception as e:
             error_logger.error(f"發生未知錯誤: {e}")
             return jsonify({"message": f"發生未知錯誤: {e}"}), 500
-            
+    
     @app.route('/api/deletelist', methods=['DELETE'])
     def delete_list():
         data = request.json
@@ -126,34 +127,42 @@ def setup_routes(app, data_store, lock):
         
         print(f"更新的網址或名稱或ID：{url_or_name_or_id}")
         
-        for item in data_store["live_list"]:
+        updated_live_list = list(data_store["live_list"])
+        updated_favorites = list(data_store["favorites"])
+        updated_auto_record = list(data_store["auto_record"])
+
+        for item in updated_live_list:
             if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id:
                 print(f"更新的項目：{item}")
                 item["isFavorite"] = data["isFavorite"]
                 item["autoRecord"] = data["autoRecord"]
                 item["viewed"] = data["viewed"]
                 if item["isFavorite"]:
-                    if item["id"] not in data_store["favorites"]:
-                        data_store["favorites"].append(item["id"])
-                        print(f'數量:{len(data_store["favorites"])}')
+                    if item["id"] not in updated_favorites:
+                        updated_favorites.append(item["id"])
+                        print(f'數量:{len(updated_favorites)}')
                 else:
-                    if item["id"] in data_store["favorites"]:
-                        data_store["favorites"].remove(item["id"])
-                        print(f'數量:{len(data_store["favorites"])}')
+                    if item["id"] in updated_favorites:
+                        updated_favorites.remove(item["id"])
+                        print(f'數量:{len(updated_favorites)}')
                 if item["autoRecord"]:
-                    if item["id"] not in data_store["auto_record"]:
-                        data_store["auto_record"].append(item["id"])
-                        print(f'數量:{len(data_store["auto_record"])}')
+                    if item["id"] not in updated_auto_record:
+                        updated_auto_record.append(item["id"])
+                        print(f'數量:{len(updated_auto_record)}')
                 else:
-                    if item["id"] in data_store["auto_record"]:
-                        data_store["auto_record"].remove(item["id"])
-                        print(f'數量:{len(data_store["auto_record"])}')
+                    if item["id"] in updated_auto_record:
+                        updated_auto_record.remove(item["id"])
+                        print(f'數量:{len(updated_auto_record)}')
 
+                data_store["live_list"] = updated_live_list
+                data_store["favorites"] = updated_favorites
+                data_store["auto_record"] = updated_auto_record
                 print(f"更新後資料：{len(data_store['live_list'])}")
                 write_json_file(data_store)
                 return jsonify(item), 200
         print("未找到項目")
         return jsonify({"message": "Item not found"}), 404
+
 
     @app.route('/api/getlist', methods=['GET'])
     def get_list():

@@ -26,27 +26,27 @@ def create_data_store():
     })
     return data_store
 
-def initialize_processes(data_store, lock):
+def initialize_processes(data_store, data_lock, event_lock, initialization_done_event ):
     processes = {}
 
     # 整理JSON文件
     if ORGANIZE:
-        print("正在整理 JSON 文件...")
+        print(" =================== 開始整理 JSON 文件... =================== ")
         organize_json_file(data_store)
 
     # 初始化資料
-    print("正在初始化資料...")
+    print(" =================== 開始初始化資料... =================== ")
     initialize_data_store(data_store)
     
-    # # 初始化直播流狀態
-    # print("正在初始化直播流狀態...")
-    # processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, lock,))
-    # processes['initialize'].start()
+    # 初始化直播流狀態
+    print(" =================== 正在初始化直播流狀態... =================== ")
+    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, data_lock, event_lock, initialization_done_event ))
+    processes['initialize'].start()
 
-    # # 創建並啟動監控進程
-    # print("正在啟動監控進程...")
-    # processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, lock,))
-    # processes['monitor'].start()
+    # 創建並啟動監控進程
+    print("正在啟動監控進程...")
+    processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, data_lock, event_lock, initialization_done_event ))
+    processes['monitor'].start()
 
     return processes
 
@@ -62,16 +62,19 @@ def signal_handler(sig, frame, processes):
     os._exit(0)
 
 if __name__ == '__main__':
+    
     data_store = create_data_store()
 
     # 初始化進程同步工具
-    lock = multiprocessing.Lock()
+    data_lock = multiprocessing.Lock()
+    event_lock = multiprocessing.Lock()
+    initialization_done_event = multiprocessing.Event()
 
     # 設置路由
-    setup_routes(app, data_store, lock)
+    setup_routes(app, data_store, data_lock)
 
     # 初始化並啟動進程
-    processes = initialize_processes(data_store, lock)
+    processes = initialize_processes(data_store, data_lock, event_lock, initialization_done_event)
 
     # 註冊信號處理
     signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, processes))
@@ -79,6 +82,6 @@ if __name__ == '__main__':
     atexit.register(lambda: terminate_processes(processes))
     
     try:
-        app.run(host='0.0.0.0', port=5555, debug=True)
+        app.run(host='0.0.0.0', port=5555, debug=False)
     finally:
         terminate_processes(processes)

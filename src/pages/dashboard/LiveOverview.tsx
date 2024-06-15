@@ -12,6 +12,7 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (porps) => {
   const [liveOpen, setLiveOpen] = useState(true)
 
   const { liveUrl } = porps
+
   return (
     <Card
       styles={{

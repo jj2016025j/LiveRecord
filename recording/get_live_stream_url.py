@@ -52,7 +52,7 @@ def get_live_stream_url(url):
                     end = script.text.find('.m3u8') + 5
                     live_stream_url = script.text[start:end]
                     live_stream_url = live_stream_url.encode('utf-8').decode('unicode-escape')
-                    print(f"找到直播流: {live_stream_url}")
+                    # print(f"找到直播流: {live_stream_url}")
                     return live_stream_url, "online"
 
         # print(f"直播流離線：{url}")

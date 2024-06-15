@@ -1,6 +1,7 @@
 import { Button, Image, Card, Checkbox, Descriptions, DescriptionsProps, Empty, Form, Input, Modal, Space, Typography, GetProp } from 'antd';
 import { useQueryChannel, useUpdateListStatus } from '@/api';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface IQueryMemberProps {
   setLiveUrl: any
@@ -14,6 +15,7 @@ const { Title, Text } = Typography;
 export type QueryStautsType = 'idle' | 'success' | 'empty';
 const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl }) => {
   const [form] = Form.useForm();
+  const [oldLiveUrl, setOldLiveUrl] = useState<string>('')
 
   const {
     mutate: QueryChannel,
@@ -31,16 +33,16 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
   })
   useEffect(() => {
     if (ChannelInfo && true) {
-      setLiveUrl(ChannelInfo.live_stream_url);
+      setOldLiveUrl(ChannelInfo.live_stream_url);
     }
   }, [ChannelInfo, setLiveUrl]);
 
   const maxLength = 30
   const url = ChannelInfo?.url || ''
   const needsTruncation = url.length > maxLength;
-  const truncatedText = needsTruncation
-    ? `${url.slice(0, 4)}...${url.slice(-4)}`
-    : url;
+  // const truncatedText = needsTruncation
+  //   ? `${url.slice(0, 4)}...${url.slice(-4)}`
+  //   : url;
 
   const onChange: GetProp<typeof Checkbox.Group, 'onChange'> = (checkedValues) => {
     console.log('checked = ', checkedValues);
@@ -61,12 +63,11 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         key: 'preview_image',
         label: '預覽圖',
         children: (ChannelInfo.preview_image ?
-          <img
-            src={ChannelInfo.preview_image}
+          <Image
             alt="Preview"
-            style={{ width: 50, height: 50 }}
-          /> :
-          <>無</>)
+            width={200}
+            src={ChannelInfo.preview_image}
+          /> : <>無</>)
       },
       {
         key: 'id',
@@ -81,7 +82,16 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
       {
         key: 'url',
         label: '網址',
-        children: truncatedText,
+        children: <Link
+          style={{
+            color: '#ED9200',
+            paddingInline: 15,
+          }}
+          to={ChannelInfo.url}
+          target='_blank'
+        >
+          {url || '無'}
+        </Link>,
       },
       {
         key: 'status',
@@ -130,7 +140,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         key: 'operate',
         label: '操作',
         children:
-          <Button disabled={!ChannelInfo.live_stream_url} onClick={() => { setLiveUrl(ChannelInfo.live_stream_url) }}>{'查看預覽畫面'}</Button>
+          <Button disabled={!oldLiveUrl} onClick={() => { setLiveUrl(oldLiveUrl) }}>{'查看預覽畫面'}</Button>
       },
       // {
       //   key: 'preview',

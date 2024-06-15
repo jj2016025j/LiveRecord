@@ -48,12 +48,11 @@ const useChannelColumns = () => {
       render: (preview_image) => {
         console.log('preview_image', preview_image)
         return preview_image ?
-          <img
-            src={preview_image}
+          <Image
             alt="Preview"
-            style={{ width: 50, height: 50 }}
-          /> :
-          <>無</>;
+            width={200}
+            src={preview_image}
+          /> : <>無</>;
       },
       width: 50,
     },
