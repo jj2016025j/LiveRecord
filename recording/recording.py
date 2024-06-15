@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import subprocess
 
-from utils import extract_name_from_steam_url
+from utils.utils import extract_name_from_steam_url
 
 def execute_ffmpeg_command(command):
     """

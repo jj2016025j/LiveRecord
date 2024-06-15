@@ -1,12 +1,13 @@
 from flask import Flask
-from data_store import initialize_data_store, organize_json_file
-from process_control import monitor_streams, start_monitoring_and_recording
-from routes import setup_routes
+from routes.routes import setup_routes
+from utils.process_control import monitor_streams, start_monitoring_and_recording
 import multiprocessing
 import signal
 import os
 import atexit
 import warnings
+from store.data_store import initialize_data_store, organize_json_file
+
 warnings.filterwarnings("ignore")
 
 app = Flask(__name__)
@@ -19,8 +20,9 @@ def create_data_store():
         "recording_status": {},
         "favorites": [],
         "auto_record": [],
-        "online_streams": {},
-        "offline_streams": []
+        "online": {},
+        "offline": [],
+        "online_processes": {} 
     })
     return data_store
 
@@ -49,11 +51,11 @@ def initialize_processes(data_store, lock):
     return processes
 
 def terminate_processes(processes):
-    # print("正在終止進程...")
+    print("正在終止進程...")
     for process in processes.values():
         process.terminate()
         process.join()
-    # print("進程已終止。")
+    print("進程已終止。")
 
 def signal_handler(sig, frame, processes):
     terminate_processes(processes)
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     # 初始化並啟動進程
     processes = initialize_processes(data_store, lock)
 
-    # 註冊信號處理    signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, processes))
+    # 註冊信號處理
     signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, processes))
     signal.signal(signal.SIGTERM, lambda sig, frame: signal_handler(sig, frame, processes))
     atexit.register(lambda: terminate_processes(processes))
