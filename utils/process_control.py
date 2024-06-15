@@ -1,10 +1,13 @@
 # process_control.py
 from datetime import datetime
+import os
 import time
 import multiprocessing
 from recording.get_live_stream_url import get_live_stream_url
-from recording.recording import record_stream
+from recording.recording import capture_preview_image, record_stream
 from utils.utils import generate_filename
+
+PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 
 def check_and_record_stream(url, live_stream_url, status, data_store, data_lock):
     """
@@ -14,55 +17,59 @@ def check_and_record_stream(url, live_stream_url, status, data_store, data_lock)
         if not url:
             print("URL為空")
             return
+        
+        with data_lock:
+            offline_list = data_store["offline"]
+            online_list = data_store["online"]
+            online_processes = data_store["online_processes"]
 
         if status == "online":
-            if url in data_store["offline"]:
-                with data_lock:
-                    offline_list = data_store["offline"]
+            start_new_process = False
+            with data_lock:
+                if url in offline_list:
                     offline_list.remove(url)
-                    data_store["offline"] = offline_list
-                    
-                    online_list = data_store["online"]
+                if url not in online_list:
                     online_list.append(url)
-                    data_store["online"] = online_list
-                    
-                    print('線上直播列表:',data_store['online'])
-                    print('離線直播列表:',len(data_store['offline']))
-            elif url not in data_store["online"]:
+                    start_new_process = True
+                    data_store["online_processes"][url] = None  # 先佔位，稍後更新
+                data_store["offline"] = offline_list
+                data_store["online"] = online_list
+
+            if start_new_process:
                 filename_template = generate_filename(url)
                 process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
                 process.start()
                 
+                # 捕捉直播流預覽圖片
+                preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+
                 with data_lock:
-                    online_list = data_store["online"]
-                    online_list.append(url)
-                    data_store["online"] = online_list
-                    
+                    for item in data_store["live_list"]:
+                        if item.get("url") == url:
+                            item["preview_image"] = preview_image_path
+                            break
                     data_store["online_processes"][url] = process
-                    print('線上直播列表:',data_store['online'])
+                print(f'開始錄製直播 {url}。更新後線上直播列表:', online_list)
+            else:
+                print(f'直播 {url} 現已在線。更新後線上直播列表:', online_list)
 
         elif status == "offline":
             with data_lock:
-                if url in data_store["online"]:
+                if url in online_list:
                     process = data_store["online_processes"].pop(url, None)
                     if process:
                         process.terminate()
                         process.join()
-
-                    online_list = data_store["online"]
                     online_list.remove(url)
-                    data_store["online"] = online_list
-                
-                    print('線上直播列表:',data_store['online'])
-                if url not in data_store["offline"]:
-                    with data_lock:
-                        offline_list = data_store["offline"]
-                        offline_list.append(url)
-                        data_store["offline"] = offline_list
-                        print('離線直播列表:',len(data_store['offline']))
+                if url not in offline_list:
+                    offline_list.append(url)
+                data_store["online"] = online_list
+                data_store["offline"] = offline_list
+            # print(f'直播 {url} 已離線。更新後離線直播列表:', len(data_store['offline']))
+
         else:
-            print(f"無法找到 {url}。")
-                
+            print(f"無法找到 {url}。")       
+                     
     except Exception as e:
         print(f"檢查 {url} 時出錯: {e}")
         with data_lock:
@@ -79,6 +86,7 @@ def monitor_streams(data_store, data_lock, initialization_done_event):
     """
     try:
         with data_lock:
+            live_streams_list = data_store['autoRecord']
             data_store['online_users']= 0
             data_store['offline_users']= 0
             data_store['online_users_last_time']= 0
@@ -97,16 +105,15 @@ def monitor_streams(data_store, data_lock, initialization_done_event):
                 offline_set = set(data_store['offline'])
 
             # 計算需要檢查的離線列表
-            offline_list = list(auto_record_set - online_set) + list(offline_set)            
+            offline_list = list(list(auto_record_set - online_set).union(offline_set))       
             print(" =================== 正在瀏覽離線直播... =================== ")
-            # with data_lock:
-                # print('離線直播列表:',len(data_store['offline']))
+            print('離線直播列表:',len(offline_list))
             for url in offline_list.copy():
-                # print('離線直播網址:',url)
                 live_stream_url, status = get_live_stream_url(url)
-                p = multiprocessing.Process(target=check_and_record_stream, args=(url, live_stream_url, status, data_store, data_lock))
-                p.start()
-                processes.append(p)
+                with data_lock:
+                    p = multiprocessing.Process(target=check_and_record_stream, args=(url, live_stream_url, status, data_store, data_lock))
+                    p.start()
+                    processes.append(p)
                 
             print(" =================== 正在瀏覽線上直播... =================== ")
             with data_lock:
@@ -117,11 +124,10 @@ def monitor_streams(data_store, data_lock, initialization_done_event):
                     if url in data_store["online_processes"]:
                         print(f"{url} 正在錄製中，跳過...")
                         continue
-                # print('線上直播網址:',url)
-                live_stream_url, status = get_live_stream_url(url)
-                p = multiprocessing.Process(target=check_and_record_stream, args=(url, live_stream_url, status, data_store, data_lock))
-                p.start()
-                processes.append(p)
+                    live_stream_url, status = get_live_stream_url(url)
+                    p = multiprocessing.Process(target=check_and_record_stream, args=(url, live_stream_url, status, data_store, data_lock))
+                    p.start()
+                    processes.append(p)
 
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(f" =================== {current_time} 瀏覽結果: =================== ")
@@ -151,11 +157,13 @@ def start_monitoring_and_recording(data_store, data_lock, initialization_done_ev
     """
     with data_lock:
         live_streams_list = data_store['autoRecord']
-
-        data_store["online"] = []
-        data_store["offline"] = []
+        online_list = data_store["online"]
+        offline_list = data_store["offline"]
         data_store["online_processes"] = {}
     processes = []
+
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f" =================== {current_time} 直播錄製開始初始化 =================== ")
 
     for url in live_streams_list:
         live_stream_url, status = get_live_stream_url(url)
@@ -163,8 +171,7 @@ def start_monitoring_and_recording(data_store, data_lock, initialization_done_ev
         p.start()
         processes.append(p)
 
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f" =================== {current_time} 初始化結果: =================== ")
+    print(f" =================== {current_time} 直播錄製初始化結果: =================== ")
     with data_lock:
         if data_store["online"]:
             print(f"{current_time} 在線直播: {data_store['online']}")

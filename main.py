@@ -20,7 +20,7 @@ def create_data_store():
         "recording_status": {},
         "favorites": [],
         "auto_record": [],
-        "online": {},
+        "online": [],
         "offline": [],
         "online_processes": {} 
     })
