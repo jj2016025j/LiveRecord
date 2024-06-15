@@ -26,7 +26,7 @@ def create_data_store():
     })
     return data_store
 
-def initialize_processes(data_store, data_lock, event_lock, initialization_done_event ):
+def initialize_processes(data_store, data_lock, initialization_done_event ):
     processes = {}
 
     # 整理JSON文件
@@ -40,22 +40,22 @@ def initialize_processes(data_store, data_lock, event_lock, initialization_done_
     
     # 初始化直播流狀態
     print(" =================== 正在初始化直播流狀態... =================== ")
-    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, data_lock, event_lock, initialization_done_event ))
+    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, data_lock, initialization_done_event ))
     processes['initialize'].start()
 
     # 創建並啟動監控進程
-    print("正在啟動監控進程...")
-    processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, data_lock, event_lock, initialization_done_event ))
+    print(" =================== 正在啟動監控進程... =================== ")
+    processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, data_lock, initialization_done_event ))
     processes['monitor'].start()
 
     return processes
 
 def terminate_processes(processes):
-    print("正在終止進程...")
+    print(" =================== 正在終止進程... =================== ")
     for process in processes.values():
         process.terminate()
         process.join()
-    print("進程已終止。")
+    print(" =================== 進程已終止。 =================== ")
 
 def signal_handler(sig, frame, processes):
     terminate_processes(processes)
@@ -67,14 +67,13 @@ if __name__ == '__main__':
 
     # 初始化進程同步工具
     data_lock = multiprocessing.Lock()
-    event_lock = multiprocessing.Lock()
     initialization_done_event = multiprocessing.Event()
 
     # 設置路由
     setup_routes(app, data_store, data_lock)
 
     # 初始化並啟動進程
-    processes = initialize_processes(data_store, data_lock, event_lock, initialization_done_event)
+    processes = initialize_processes(data_store, data_lock, initialization_done_event)
 
     # 註冊信號處理
     signal.signal(signal.SIGINT, lambda sig, frame: signal_handler(sig, frame, processes))

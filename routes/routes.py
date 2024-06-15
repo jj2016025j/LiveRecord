@@ -19,12 +19,9 @@ PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
     
 def setup_routes(app, data_store, lock):
+
     @app.route('/', methods=['GET'])
     def health_check():
-        return "系統運作正常", 200        
-
-    @app.route('/health', methods=['GET'])
-    def health_check2():
         html_content = """
         <!DOCTYPE html>
         <html lang="en">
