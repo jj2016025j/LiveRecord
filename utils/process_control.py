@@ -9,7 +9,7 @@ from utils.utils import generate_filename
 
 PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 
-def check_and_record_stream(url, data_store, data_lock):
+def check_and_record_stream(url, live_stream_url, status, data_store, data_lock):
     """
     檢查直播流狀態並進行錄製。
     """
@@ -17,8 +17,6 @@ def check_and_record_stream(url, data_store, data_lock):
         if not url:
             print("URL為空")
             return
-        
-        live_stream_url, status = get_live_stream_url(url)
 
         if status == "online":
             handle_online_stream(url, live_stream_url, data_store, data_lock)
@@ -48,7 +46,6 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
             data_store["online_processes"][url] = None
         data_store["offline"] = offline_list
         data_store["online"] = online_list
-        data_store["recording_list"] = recording_list
 
         # 捕捉直播流預覽圖片
         if live_stream_url:
@@ -94,31 +91,6 @@ def handle_offline_stream(url, data_store, data_lock):
         data_store["recording_list"] = recording_list
 
     print(f'直播 {url} 已離線。更新後離線直播列表:', len(data_store['offline']))
-
-def monitor_streams(data_store, data_lock):
-    """
-    監控直播流狀態。
-    """
-    try:
-        with data_lock:
-            autoRecord_list = data_store['autoRecord']
-            recording_list = data_store['recording_list']
-
-        while True:
-            print(" =================== 開始瀏覽所有直播... =================== ")
-            for url in autoRecord_list:
-                if url in recording_list:
-                    print(f"{url} 正在錄製中，跳過...")
-                    continue
-
-                p = multiprocessing.Process(target=check_and_record_stream, args=(url, data_store, data_lock))
-                p.start()
-
-            log_monitoring_status(data_store, data_lock)
-            time.sleep(60)
-                
-    except KeyboardInterrupt:
-        print("監控進程被中斷")
  
 def log_monitoring_status(data_store, data_lock):
     """
@@ -146,6 +118,31 @@ def log_monitoring_status(data_store, data_lock):
         if offline_users == offline_users_last_time and online_users == online_users_last_time:
             print(f" =================== {current_time} 無變動 檢查完畢 =================== ")
     print(f" =================== {current_time} =================== ")
+
+def monitor_streams(data_store, data_lock):
+    """
+    監控直播流狀態。
+    """
+    try:
+        while True:
+            print(" =================== 開始瀏覽所有直播... =================== ")
+            with data_lock:
+                autoRecord_list = data_store['autoRecord']
+                recording_list = data_store['recording_list']
+
+            for url in autoRecord_list:
+                if url in recording_list:
+                    print(f"{url} 正在錄製中，跳過...")
+                    continue
+
+                live_stream_url, status = get_live_stream_url(url)
+                check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
+
+            log_monitoring_status(data_store, data_lock)
+            time.sleep(60)
+
+    except KeyboardInterrupt:
+        print("監控進程被中斷")
     
 def start_monitoring_and_recording(data_store, data_lock):
     """
@@ -158,8 +155,8 @@ def start_monitoring_and_recording(data_store, data_lock):
     print(f" =================== {current_time} 直播錄製開始初始化 =================== ")
 
     for url in live_streams_list:
-        p = multiprocessing.Process(target=check_and_record_stream, args=(url, data_store, data_lock))
-        p.start()
+        live_stream_url, status = get_live_stream_url(url)
+        check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
 
     print(f" =================== {current_time} 直播錄製初始化結果: =================== ")
     with data_lock:
