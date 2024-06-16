@@ -57,12 +57,13 @@ def setup_routes(app, data_store, data_lock):
                 print("未提供網址或名稱或ID")
                 return jsonify({"message": "未提供網址或名稱或ID"}), 400
 
-            updated_live_list = list(data_store["live_list"])
+            with data_lock:
+                updated_live_list = list(data_store["live_list"])
 
             existing_item = next((item for item in updated_live_list if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
             if existing_item:
-                print(f"已存在的項目：{existing_item}")
                 live_stream_url, status = get_live_stream_url(existing_item["url"])
+                print(f"已存在的項目：{existing_item}")
                 print(f"嘗試取得直播流：{live_stream_url}，狀態:{status}")
                 existing_item["live_stream_url"] = live_stream_url
                 existing_item["status"] = status
@@ -70,6 +71,10 @@ def setup_routes(app, data_store, data_lock):
                 if live_stream_url:
                     preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
                     existing_item["preview_image"] = preview_image_path
+                    url = existing_item["url"]
+                    filename_template = generate_filename(url)
+                    process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, ))
+                    process.start()
 
                 for idx, item in enumerate(updated_live_list):
                     if item.get("id") == existing_item["id"]:
@@ -86,6 +91,10 @@ def setup_routes(app, data_store, data_lock):
                 new_item = process_url_or_name(data_store, test_url, url_or_name_or_id)
 
             if new_item:
+                filename_template = generate_filename(new_item['url'])
+                process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template))
+                process.start()
+
                 update_data_store_and_file(data_store, new_item, data_lock)
                 return jsonify(new_item), 201
 

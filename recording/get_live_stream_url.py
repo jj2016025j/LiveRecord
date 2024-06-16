@@ -34,7 +34,12 @@ def get_live_stream_url(url):
 
     # 配置重試策略
     session = requests.Session()
-    retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    retries = Retry(
+        total=10,  # 重試次數
+        backoff_factor=1,  # 重試間隔時間指數增長因子
+        status_forcelist=[500, 502, 503, 504],  # 遇到這些狀態碼時重試
+        raise_on_status=False  # 遇到指定狀態碼時不拋出異常
+    )
     session.mount('https://', HTTPAdapter(max_retries=retries))
 
     try:
