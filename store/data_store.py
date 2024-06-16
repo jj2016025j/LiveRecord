@@ -101,7 +101,7 @@ def update_data_store_and_file(data_store, new_item, lock):
     with lock:
         # print(len(data_store["live_list"]))
         # print(data_store["live_list"])
-        updated_live_list = list(data_store["live_list"])
+        updated_live_list = data_store["live_list"]
         updated_live_list.append(new_item)
         data_store["live_list"] = updated_live_list
         # print(len(data_store["live_list"]))

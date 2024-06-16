@@ -22,18 +22,19 @@ def record_stream(live_stream_url, filename_template):
     """
     錄製直播流。
     """
-    # print("直播網址:", live_stream_url)
-    # print("儲存路徑:", filename_template)
-    command = [
-        'ffmpeg',
-        '-i', live_stream_url,
-        '-c', 'copy',
-        '-c:a', 'aac',
-        '-bsf:a', 'aac_adtstoasc',
-        '-f', 'mpegts',
-        filename_template
-    ]
-    execute_ffmpeg_command(command)
+    if live_stream_url and filename_template:
+        # print("直播網址:", live_stream_url)
+        # print("儲存路徑:", filename_template)
+        command = [
+            'ffmpeg',
+            '-i', live_stream_url,
+            '-c', 'copy',
+            '-c:a', 'aac',
+            '-bsf:a', 'aac_adtstoasc',
+            '-f', 'mpegts',
+            filename_template
+        ]
+        execute_ffmpeg_command(command)
 
 def capture_preview_image(live_stream_url, output_dir):
     """

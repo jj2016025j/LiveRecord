@@ -47,18 +47,22 @@ def process_url_or_name(data_store, data_lock, url, name=None):
         raise ValueError("URL 不能為空")
     
     live_stream_url, status = get_live_stream_url(url)
-    print(f"嘗試取得直播流：{live_stream_url}，狀態:{status}")
+    print(f"嘗試取得直播流: {live_stream_url}，狀態: {status}")
     preview_image_path = ''  # 赋予默认值
     if status in ["online", "offline"]:
+        print('找到直播流，開始創建新資料')
         new_id = generate_unique_id()
         if live_stream_url:
+            print('正在線上，取得預覽圖')
             preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
-            print(f'取得圖片路徑{preview_image_path}')
+            print(f'取得圖片的儲存路徑{preview_image_path}')
         
         # 获取当前 live_list 长度作为流水号
         with data_lock:
+            print('創建流水號')
             serial_number = len(data_store["live_list"]) + 1
         
+        print('返回創建資料')
         return {
             "id": new_id,
             "name": name or url.split('/')[-2],

@@ -35,7 +35,7 @@ def get_live_stream_url(url):
     # 配置重試策略
     session = requests.Session()
     retries = Retry(
-        total=10,  # 重試次數
+        total=15,  # 重試次數
         backoff_factor=1,  # 重試間隔時間指數增長因子
         status_forcelist=[500, 502, 503, 504],  # 遇到這些狀態碼時重試
         raise_on_status=False  # 遇到指定狀態碼時不拋出異常
@@ -45,6 +45,7 @@ def get_live_stream_url(url):
     try:
         response = session.get(url, headers=headers, timeout=10)
 
+        # print('狀態碼:', response.status_code)
         if response.status_code == 404:
             print(f"找不到頁面: {url}")
             return None, "Page not found"
@@ -60,6 +61,9 @@ def get_live_stream_url(url):
                     # print(f"找到直播流: {live_stream_url}")
                     return live_stream_url, "online"
 
+        """
+        429 200 已離線
+        """
         # print(f"直播流離線：{url}")
         return None, "offline"
 

@@ -5,7 +5,7 @@ import atexit
 import warnings
 from flask import Flask
 from routes.routes import setup_routes
-from utils.process_control import monitor_streams, start_monitoring_and_recording
+from utils.process_control import start_and_monitor_streams
 from store.data_store import initialize_data_store, organize_json_file
 warnings.filterwarnings("ignore")
 
@@ -48,16 +48,10 @@ def initialize_processes(data_store, data_lock ):
     print(" =================== 開始初始化資料... =================== ")
     initialize_data_store(data_store, data_lock)
     
-    # 初始化直播流狀態
-    print(" =================== 正在初始化直播流狀態... =================== ")
-    processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, data_lock))
-    processes['initialize'].start()
-
-    # 創建並啟動監聽進程
-    print(" =================== 正在啟動監聽進程... =================== ")
-    processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, data_lock))
-    processes['monitor'].start()
-
+    print(" =================== 正在初始化並啟動監聽進程... =================== ")
+    process = multiprocessing.Process(target=start_and_monitor_streams, args=(data_store, data_lock))
+    process.start()
+    processes['monitor'] = process
     return processes
 
 def terminate_processes(processes):

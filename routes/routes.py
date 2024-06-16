@@ -46,9 +46,9 @@ def setup_routes(app, data_store, data_lock):
     def query_and_add_list():
         # try:
             data = request.json
-            url_or_name_or_id = data.get('urlOrNameOrId')
+            url_or_name_or_id = data.get('urlOrNameOrId').trip()
 
-            print(f"處理的網址或名稱或ID：{url_or_name_or_id}")
+            print(f"正在處理的網址或名稱或ID: {url_or_name_or_id}")
 
             if url_or_name_or_id is None:
                 raise ValueError("沒有值: 'urlOrNameOrId'")
@@ -58,17 +58,17 @@ def setup_routes(app, data_store, data_lock):
                 return jsonify({"message": "未提供網址或名稱或ID"}), 400
 
             with data_lock:
-                updated_live_list = list(data_store["live_list"])
+                updated_live_list = data_store["live_list"]
 
             existing_item = next((item for item in updated_live_list if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
             if existing_item:
+                print(f"已存在項目: ")
                 live_stream_url, status = get_live_stream_url(existing_item["url"])
-                print(f"已存在的項目：{existing_item}")
-                print(f"嘗試取得直播流：{live_stream_url}，狀態:{status}")
+                print(f"嘗試取得直播流: {live_stream_url}，狀態: {status}")
                 existing_item["live_stream_url"] = live_stream_url
                 existing_item["status"] = status
                 # 捕捉直播流預覽圖片
-                if live_stream_url:
+                if live_stream_url and status=='online':
                     preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
                     existing_item["preview_image"] = preview_image_path
                     url = existing_item["url"]
@@ -84,19 +84,26 @@ def setup_routes(app, data_store, data_lock):
                     data_store["live_list"] = updated_live_list
                 return jsonify(existing_item), 200
 
-            if "chaturbate.com" in url_or_name_or_id:
-                new_item = process_url_or_name(data_store, data_lock, url_or_name_or_id)
             else:
-                test_url = f"https://chaturbate.com/{url_or_name_or_id}/"
-                new_item = process_url_or_name(data_store, data_lock, test_url, url_or_name_or_id)
+                print(f"不存在項目: ")
+                if "chaturbate.com" in url_or_name_or_id:
+                    print('用網址創建資料')
+                    new_item = process_url_or_name(data_store, data_lock, url_or_name_or_id)
+                else:
+                    print('用網址創建資料')
+                    test_url = f"https://chaturbate.com/{url_or_name_or_id}/"
+                    new_item = process_url_or_name(data_store, data_lock, test_url, url_or_name_or_id)
 
-            if new_item:
-                filename_template = generate_filename(new_item['url'])
-                process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template))
-                process.start()
-                with data_lock:
+                if new_item:
+                    filename_template = generate_filename(new_item['url'])
+                    print(f'取得新資料及影片儲存地址，開始錄製...')
+                    process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template))
+                    process.start()
+                    print(f'正在錄製...')
+                    print('嘗試更新檔案')
                     update_data_store_and_file(data_store, new_item, data_lock)
-                return jsonify(new_item), 201
+                    print('更新檔案完畢')
+                    return jsonify(new_item), 201
 
             print("未找到頁面")
             return jsonify({"message": "未找到頁面"}), 404
@@ -138,9 +145,9 @@ def setup_routes(app, data_store, data_lock):
         print(f"更新的網址或名稱或ID：{url_or_name_or_id}")
 
         with data_lock:
-            updated_live_list = list(data_store["live_list"])
-            updated_favorites = list(data_store["favorites"])
-            updated_auto_record = list(data_store["auto_record"])
+            updated_live_list = data_store["live_list"]
+            updated_favorites = data_store["favorites"]
+            updated_auto_record = data_store["auto_record"]
             for item in updated_live_list:
                 if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id:
                     print(f"更新的項目：{item}")
@@ -182,7 +189,7 @@ def setup_routes(app, data_store, data_lock):
             auto_record = request.args.get("autoRecord", type=lambda v: v.lower() == 'true' if v else None)
             watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
             searchQuery = request.args.get("searchQuery", type=str, default="")
-            print(f'searchQuery: {searchQuery}')
+            # print(f'searchQuery: {searchQuery}')
             with data_lock:
                 filtered_list = data_store["live_list"]
 
