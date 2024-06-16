@@ -64,15 +64,15 @@ def get_live_stream_url(url):
         return None, "offline"
 
     except requests.exceptions.SSLError as e:
-        print(f"檢查 {url} 時發生 SSL 錯誤：{e}")
+        print(f"監聽 {url} 時發生 SSL 錯誤：{e}")
         return None, "SSL Error"
 
     except requests.exceptions.ConnectionError as e:
-        print(f"檢查 {url} 時發生連接錯誤：{e}")
+        print(f"監聽 {url} 時發生連接錯誤：{e}")
         return None, "Connection Error"
 
     except requests.exceptions.RequestException as e:
-        print(f"檢查 {url} 時發生請求錯誤：{e}")
+        print(f"監聽 {url} 時發生請求錯誤：{e}")
         return None, "Request Error"
     
 def main():

@@ -40,21 +40,21 @@ def initialize_processes(data_store, data_lock ):
     processes = {}
 
     # 整理JSON文件
-    if ORGANIZE:
+    if True:
         print(" =================== 開始整理 JSON 文件... =================== ")
-        organize_json_file(data_store)
+        organize_json_file(data_store, data_lock)
 
     # 初始化資料
     print(" =================== 開始初始化資料... =================== ")
-    initialize_data_store(data_store)
+    initialize_data_store(data_store, data_lock)
     
     # 初始化直播流狀態
     print(" =================== 正在初始化直播流狀態... =================== ")
     processes['initialize'] = multiprocessing.Process(target=start_monitoring_and_recording, args=(data_store, data_lock))
     processes['initialize'].start()
 
-    # 創建並啟動監控進程
-    print(" =================== 正在啟動監控進程... =================== ")
+    # 創建並啟動監聽進程
+    print(" =================== 正在啟動監聽進程... =================== ")
     processes['monitor'] = multiprocessing.Process(target=monitor_streams, args=(data_store, data_lock))
     processes['monitor'].start()
 

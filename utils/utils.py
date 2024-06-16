@@ -11,14 +11,16 @@ def generate_unique_id():
     """
     return str(uuid.uuid4())
 
-def get_live_streams_list(data_store):
+def get_live_streams_list(data_store, data_lock):
     """
     從 data_store 取得 autoRecord 列表，
     然後從 live_list 中找到符合的 ID，放進陣列回傳。
     """
     print("從 data_store 取得 autoRecord 列表並篩選匹配的 live_list")
-    autoRecord_list = data_store.get('autoRecord', [])
-    live_list = data_store.get('live_list', [])
+    
+    with data_lock:
+        autoRecord_list = data_store.get('autoRecord', [])
+        live_list = data_store.get('live_list', [])
 
     matching_items = [item for item in live_list if item['id'] in autoRecord_list]
     return matching_items

@@ -42,7 +42,7 @@ def check_and_complete_data(item):
     
     return item
 
-def process_url_or_name(data_store, url, name=None):
+def process_url_or_name(data_store, data_lock, url, name=None):
     if not url:
         raise ValueError("URL 不能為空")
     
@@ -56,7 +56,8 @@ def process_url_or_name(data_store, url, name=None):
             print(f'取得圖片路徑{preview_image_path}')
         
         # 获取当前 live_list 长度作为流水号
-        serial_number = len(data_store["live_list"]) + 1
+        with data_lock:
+            serial_number = len(data_store["live_list"]) + 1
         
         return {
             "id": new_id,

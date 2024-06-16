@@ -49,7 +49,7 @@ const useStoreStatus = ({ ...useProps }: UseTestQueryProps<OtherProps, StoreStat
           .map(() => ({ cash: myFactory.number.int({ max: 10000, min: 1000 }) })),
       });
     },
-    blockNotify: !store, // 再第一次就請求失敗時，表示為使用者閒置過久後使用瀏覽器過期的token請求的情況
+    blockNotify: !store, // 再第一次就請求失敗時，表示為使用者閒置過久後使用監聽器過期的token請求的情況
     refetchInterval: 1000 * 60 * 10,
     skipLog: true,
     onTest: () => {

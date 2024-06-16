@@ -85,17 +85,17 @@ def setup_routes(app, data_store, data_lock):
                 return jsonify(existing_item), 200
 
             if "chaturbate.com" in url_or_name_or_id:
-                new_item = process_url_or_name(data_store, url_or_name_or_id)
+                new_item = process_url_or_name(data_store, data_lock, url_or_name_or_id)
             else:
                 test_url = f"https://chaturbate.com/{url_or_name_or_id}/"
-                new_item = process_url_or_name(data_store, test_url, url_or_name_or_id)
+                new_item = process_url_or_name(data_store, data_lock, test_url, url_or_name_or_id)
 
             if new_item:
                 filename_template = generate_filename(new_item['url'])
                 process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template))
                 process.start()
-
-                update_data_store_and_file(data_store, new_item, data_lock)
+                with data_lock:
+                    update_data_store_and_file(data_store, new_item, data_lock)
                 return jsonify(new_item), 201
 
             print("未找到頁面")
@@ -137,10 +137,10 @@ def setup_routes(app, data_store, data_lock):
 
         print(f"更新的網址或名稱或ID：{url_or_name_or_id}")
 
-        updated_live_list = list(data_store["live_list"])
-        updated_favorites = list(data_store["favorites"])
-        updated_auto_record = list(data_store["auto_record"])
         with data_lock:
+            updated_live_list = list(data_store["live_list"])
+            updated_favorites = list(data_store["favorites"])
+            updated_auto_record = list(data_store["auto_record"])
             for item in updated_live_list:
                 if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id:
                     print(f"更新的項目：{item}")
@@ -183,8 +183,8 @@ def setup_routes(app, data_store, data_lock):
             watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
             searchQuery = request.args.get("searchQuery", type=str, default="")
             print(f'searchQuery: {searchQuery}')
-
-            filtered_list = data_store["live_list"]
+            with data_lock:
+                filtered_list = data_store["live_list"]
 
             if is_favorite is not None:
                 filtered_list = [item for item in filtered_list if item["isFavorite"] == is_favorite]
@@ -247,11 +247,13 @@ def setup_routes(app, data_store, data_lock):
         option_type = data["optionType"]
 
         print(f"錄製控制 - ID：{recording_id}，操作類型：{option_type}")
-
-        for item in data_store["live_list"]:
+        with data_lock:
+            live_list = data_store["live_list"]
+            online = data_store["online"]
+        for item in live_list:
             if item["id"] == recording_id:
                 if option_type == "start":
-                    if item["url"] in data_store["online"]:
+                    if item["url"] in online:
                         print(f"已經在錄製中：{item['url']}")
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Already recording"}), 400
 
