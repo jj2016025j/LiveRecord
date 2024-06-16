@@ -16,6 +16,7 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (props) => {
   const [channels, setChannels] = useState<any>([]);
   const [currentChannelIndex, setCurrentChannelIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [livingUrl, setLivingUrl] = useState<string>('')
 
   useEffect(() => {
     axios.get('/api/channels')
@@ -51,6 +52,14 @@ const OverviewCard: React.FunctionComponent<IOverviewCardProps> = (props) => {
   };
 
   const { liveUrl } = props;
+
+  useEffect(() => {
+    if (liveUrl)
+      setLivingUrl(liveUrl)
+    console.log('liveUrl', liveUrl)
+    console.log('livingUrl', livingUrl)
+    console.log('liveOpen', liveOpen)
+  }, [liveUrl, liveOpen])
 
   return (
     <Card

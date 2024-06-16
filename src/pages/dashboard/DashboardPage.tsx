@@ -21,7 +21,7 @@ const DashboardPage = () => {
         </Col>
         <Col span={12}>
           {/* 清單 */}
-          <LiveList setLiveUrl={setLiveUrl} />
+          <LiveList setLiveUrl={()=>{}} />
         </Col>
       </Row>
     </>

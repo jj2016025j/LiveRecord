@@ -32,10 +32,12 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
     // isTest: true
   })
   useEffect(() => {
-    if (ChannelInfo && true) {
+    if (ChannelInfo) {
       setOldLiveUrl(ChannelInfo.live_stream_url);
+      setLiveUrl(ChannelInfo.live_stream_url); // 更新 liveUrl 狀態
     }
   }, [ChannelInfo, setLiveUrl]);
+  
 
   const maxLength = 30
   const url = ChannelInfo?.url || ''
@@ -140,7 +142,10 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         key: 'operate',
         label: '操作',
         children:
-          <Button disabled={!oldLiveUrl} onClick={() => { setLiveUrl(oldLiveUrl) }}>{'查看預覽畫面'}</Button>
+          <Button disabled={!oldLiveUrl} onClick={() => {
+            console.log('oldLiveUrl', oldLiveUrl)
+            setLiveUrl(oldLiveUrl)
+          }}>{'查看預覽畫面'}</Button>
       },
       // {
       //   key: 'preview',
