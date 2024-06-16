@@ -186,33 +186,69 @@ def setup_routes(app, data_store, data_lock):
                     return jsonify(item), 200
         print("未找到項目")
         return jsonify({"message": "Item not found"}), 404
-
-    @app.route('/api/getlist', methods=['GET'])
-    def get_list():
+    
+    @app.route('/api/channels', methods=['GET'])
+    def get_channels():
         try:
+            with data_lock:
+                auto_record = data_store.get("auto_record", [])
+                live_list = data_store.get("live_list", [])
+
+                # 根據 auto_record 的狀態過濾 live_list
+                channels = [channel for channel in live_list if channel["url"] in auto_record]
+
+            return jsonify(channels), 200
+        except Exception as e:
+            error_logger.error(f"發生未知錯誤: {e}")
+            return jsonify({"error": f"發生未知錯誤: {e}"}), 500
+    
+    @app.route('/api/getlist', methods=['POST'])
+    def get_list():
+        # try:
             print('開始查詢')
-            current_page = request.args.get("currentPage", type=int, default=1)
-            page_size = request.args.get("pageSize", type=int, default=10)
-            is_favorite = request.args.get("isFavorite", type=lambda v: v.lower() == 'true' if v else None)
-            auto_record = request.args.get("autoRecord", type=lambda v: v.lower() == 'true' if v else None)
-            watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
-            searchQuery = request.args.get("searchQuery", type=str, default="")
-            # print(f'searchQuery: {searchQuery}')
+            data = request.get_json()
+            
+            current_page = data.get("currentPage", 1)
+            page_size = data.get("pageSize", 10)
+            search_query = data.get("searchQuery", "")
+            filters = data.get('filters', {})
+            sorter = data.get('sorter', {})
+            print(current_page)
+            print(page_size)
+            print(search_query)
+            print(filters)
+            print(sorter)
+
             print('取得查詢需求')
             with data_lock:
                 filtered_list = data_store["live_list"]
 
-            if is_favorite is not None:
-                filtered_list = [item for item in filtered_list if item["isFavorite"] == is_favorite]
+            # 应用过滤条件
+            if 'autoRecord' in filters and filters['autoRecord']:
+                auto_record_filters = filters['autoRecord']
+                filtered_list = [
+                    item for item in filtered_list 
+                    if ('true' in auto_record_filters and item["autoRecord"]) or 
+                    ('false' in auto_record_filters and not item["autoRecord"])
+                ]
 
-            if auto_record is not None:
-                filtered_list = [item for item in filtered_list if item["autoRecord"] == auto_record]
+            if 'preview_image' in filters and filters['preview_image']:
+                preview_image_filters = filters['preview_image']
+                filtered_list = [
+                    item for item in filtered_list 
+                    if ('haveImage' in preview_image_filters and item.get("preview_image")) or 
+                    ('noImage' in preview_image_filters and not item.get("preview_image"))
+                ]
 
-            if watched is not None:
-                filtered_list = [item for item in filtered_list if item["viewed"] == watched]
+            if 'status' in filters and filters['status']:
+                status_filters = filters['status']
+                filtered_list = [
+                    item for item in filtered_list 
+                    if item["status"] in status_filters
+                ]
 
-            if searchQuery:
-                search_query_lower = searchQuery.lower()
+            if search_query:
+                search_query_lower = search_query.lower()
                 print(f'search_query_lower: {search_query_lower}')
                 filtered_list = [
                     item for item in filtered_list if (
@@ -223,6 +259,14 @@ def setup_routes(app, data_store, data_lock):
                         (item.get("status") and search_query_lower in item["status"].lower())
                     )
                 ]
+
+            # 应用排序
+            if 'field' in sorter and 'order' in sorter:
+                sorter_key = sorter['field']
+                sorter_order = sorter['order']
+                reverse = sorter_order == 'descend'
+                if sorter_key in ["id", "name", "url"]:
+                    filtered_list = sorted(filtered_list, key=lambda x: x.get(sorter_key, ''), reverse=reverse)
 
             total_records = len(filtered_list)
             total_pages = (total_records + page_size - 1) // page_size
@@ -249,13 +293,13 @@ def setup_routes(app, data_store, data_lock):
 
             return jsonify(response), 200
 
-        except KeyError as e:
-            error_logger.error(f"鍵錯誤: {e}")
-            return jsonify({"error": f"鍵錯誤: {e}"}), 400
-        except Exception as e:
-            error_logger.error(f"發生未知錯誤: {e}")
-            return jsonify({"error": f"發生未知錯誤: {e}"}), 500
-
+        # except KeyError as e:
+        #     error_logger.error(f"鍵錯誤: {e}")
+        #     return jsonify({"error": f"鍵錯誤: {e}"}), 400
+        # except Exception as e:
+        #     error_logger.error(f"發生未知錯誤: {e}")
+        #     return jsonify({"error": f"發生未知錯誤: {e}"}), 500
+    
     @app.route('/api/recordingcontrol', methods=['POST'])
     def recording_control():
         data = request.json

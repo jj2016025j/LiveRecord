@@ -13,13 +13,14 @@ const { Text } = Typography;
 
 const maxLength = 30
 
-const useChannelColumns = () => {
+const useChannelColumns = (porps: { setLiveUrl: any; }) => {
   const {
     mutate: updateListStatus,
   } = useUpdateListStatus({
     // isTest: true
-  })
 
+  })
+  const { setLiveUrl } = porps
   const onChange = (id: any, checkedValues: string[]) => {
     console.log('checked = ', checkedValues);
     const statusUpdate = {
@@ -169,11 +170,10 @@ const useChannelColumns = () => {
     },
     {
       title: '操作',
-      dataIndex: 'operate',
       key: 'operate',
       align: 'center',
-      render: (operate) => {
-        return <Button onClick={operate}>{'查看預覽畫面'}</Button>;
+      render: (record) => {
+        return <Button onClick={setLiveUrl(record.live_stream_url)}>{'查看預覽畫面'}</Button>;
       },
       width: 100,
     },

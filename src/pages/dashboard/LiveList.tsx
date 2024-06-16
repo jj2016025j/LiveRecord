@@ -4,9 +4,11 @@ import ChannelHistory from './ChannelHistory';
 import { useDeleteChannels } from '@/api/transaction/useDeleteChannels';
 const { RangePicker } = DatePicker;
 
-interface IHistoryPageProps { }
+interface IHistoryPageProps {
+  setLiveUrl: any
+}
 const LiveList: React.FunctionComponent<IHistoryPageProps> = (props) => {
-  const { } = props;
+  const { setLiveUrl } = props;
   const [state, dispatch] = useHxStatus();
   const { dateFrom, dateTo, searchInput } = state;
   const { mutate: deleteChannels } = useDeleteChannels();
@@ -14,7 +16,7 @@ const LiveList: React.FunctionComponent<IHistoryPageProps> = (props) => {
     {
       key: '1',
       label: '櫃台紀錄',
-      children: <ChannelHistory {...state} />,
+      children: <ChannelHistory {...state} setLiveUrl={setLiveUrl} />,
     },
   ];
 

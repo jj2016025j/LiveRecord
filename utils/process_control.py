@@ -64,6 +64,9 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
                 if item.get("url") == url:
                     # print('1',item["preview_image"])
                     item["preview_image"] = preview_image_path
+                    item["status"] = 'online'
+                    item["lastViewTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    
                     # print('3',item["preview_image"])
                     break
 
@@ -104,6 +107,11 @@ def handle_offline_stream(url, data_store, data_lock):
             offline_list.append(url)
         data_store["recording_list"] = recording_list
         data_store["offline"] = offline_list
+        
+        for item in data_store["live_list"]:
+            if item.get("url") == url:
+                item["status"] = 'offline'
+                break
 
     print(f'直播 {extract_name_from_url(url)} 已離線。更新後離線直播列表:', len(data_store['offline']))
  
@@ -126,7 +134,11 @@ def log_monitoring_status(data_store, data_lock):
         offline_users_last_time = offline_users
         offline_users = len(offline)
 
-        print(f"{current_time} 錄製中直播: {recording_list}")
+        if len(recording_list) > 5:
+            print(f'{current_time} 錄製中直播: {len(recording_list)}')
+        else:
+            print(f'{current_time} 錄製中直播:', recording_list)
+
         print(f"在線人數變動: {online_users_last_time} => {online_users} ")
         print(f"離線人數變動: {offline_users_last_time} => {offline_users} ")
         if offline_users == offline_users_last_time and online_users == online_users_last_time:

@@ -11,6 +11,7 @@ interface ITableAlphaProps {
   setPageSize?: React.Dispatch<React.SetStateAction<number>>;
   setPage?: React.Dispatch<React.SetStateAction<number>>;
   totalCount?: number;
+  handleTableChange?: any;
 }
 
 const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
@@ -28,6 +29,7 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
       dataSource: originDatas,
       setPageSize: syncPageSize,
       setPage: syncPage,
+      handleTableChange,
       ...tableProps
     } = props || {};
 
@@ -75,17 +77,6 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
       onSelectAll: (selected, selectedRows, changeRows) => {
         console.log(selected, selectedRows, changeRows);
       },
-    };
-
-    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
-      const params = {
-        pagination,
-        filters,
-        sorter,
-      };
-
-      // 打印出來檢查
-      console.log('Table change params:', params);
     };
 
     useEffect(() => {

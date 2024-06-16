@@ -49,6 +49,11 @@ def record_stream(live_stream_url, filename_template, data_store, data_lock, url
                 if url in recording_list:
                     recording_list.remove(url)
                 data_store["recording_list"] = recording_list
+                for item in data_store["live_list"]:
+                    if item.get("url") == url:
+                        item["status"] = 'offline'
+                        item["lastViewTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+ 
                 print(f"錄製結束，已從錄製清單中移除: {url}")
     except Exception as e:
         print(f"執行錄製時發生錯誤: {e}")

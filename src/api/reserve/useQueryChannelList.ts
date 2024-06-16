@@ -7,6 +7,16 @@ import {
 } from '../../utils';
 import { axiosRoot } from '@/utils/axiosRoot';
 
+type Filters = {
+  autoRecord: string[] | null,
+  preview_image: string[] | null,
+  status: string[] | null,
+}
+type Sorter = {
+  field: string | undefined,
+  order: string | undefined,
+}
+
 // types
 type ChannelOptions = {
   id?: string;
@@ -34,6 +44,8 @@ type ChannelListProps = {
   pageSize?: number;
   currentPage?: number;
   searchQuery: string;
+  filters?: Filters;
+  sorter?: Sorter;
 };
 
 type OtherProps = {
@@ -50,7 +62,7 @@ const useQueryChannelList = (useProps: UseTestMutationProps<ChannelListRes, Chan
   const testMutation = useTestMutation<ChannelListRes, ChannelListProps>({
     ...config,
     mutationFn: (props) => {
-      const request = axiosRoot.get('getlist', { params: props})
+      const request = axiosRoot.post('getlist', props)
         .then(({ data }) => {
           return data
         });

@@ -5,13 +5,16 @@ import dayjs from 'dayjs';
 import { ChannelOptions, useQueryChannelList } from '@/api';
 import useChannelColumns from '../history/components/useChannelColumns';
 
-interface IChannelHistoryProps extends HistoryPageInit { }
+interface IChannelHistoryProps extends HistoryPageInit { setLiveUrl: any }
 
 const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) => {
-  const { columns } = useChannelColumns();
+  const { setLiveUrl } = props || {};
+  const { columns } = useChannelColumns({setLiveUrl});
   const [showHistory, setShowHistory] = useState<ChannelOptions[]>()
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState<Filters>();
+  const [sorter, setSorter] = useState<Sorter>();
 
   // DOM
   const { ...hxState } = props || {};
@@ -32,8 +35,10 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
       pageSize: pageSize,
       currentPage: page,
       searchQuery: searchInput,
+      filters,
+      sorter,
     });
-  }, [dateFrom, dateTo, searchInput, pageSize, page]);
+  }, [dateFrom, dateTo, searchInput, pageSize, page, filters, sorter]);
 
   useEffect(() => {
     // const showHistory = searchInput ?
@@ -47,10 +52,38 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
     console.log('showHistory', showHistory)
   }, [data])
 
+  type Filters = {
+    autoRecord: string[] | null,
+    preview_image: string[] | null,
+    status: string[] | null,
+  }
+  type Sorter = {
+    field: string | undefined,
+    order: string | undefined,
+  }
+
+  const handleTableChange = (pagination: any, filters: Filters, sorter: Sorter) => {
+    const params = {
+      pagination,
+      filters,
+      sorter,
+    };
+    const { autoRecord, preview_image, status } = filters;
+    const { field, order } = sorter;
+
+    // console.log('Sorter field:', field);
+    // console.log('Sorter order:', order);
+
+    setFilters({ autoRecord, preview_image, status });
+    setSorter({ field, order });
+
+    console.log('Table change params:', params);
+  };
+
   return (
     <>
       <TableAlpha
-        {...{ totalCount: data?.totalCount, setPageSize, setPage }}
+        {...{ totalCount: data?.totalCount, setPageSize, setPage, handleTableChange, setLiveUrl }}
         loading={isPending}
         rowKey='id'
         columns={columns}
