@@ -15,27 +15,44 @@ def execute_ffmpeg_command(command):
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
             print(f"執行 ffmpeg 指令失敗: {result.stderr.decode('utf-8')}")
+        return result.returncode
     except Exception as e:
         print(f"執行 ffmpeg 指令時發生錯誤: {e}")
-        
-def record_stream(live_stream_url, filename_template):
+        return -1
+
+def record_stream(live_stream_url, filename_template, data_store, data_lock, url):
     """
     錄製直播流。
     """
-    if live_stream_url and filename_template:
-        # print("直播網址:", live_stream_url)
-        # print("儲存路徑:", filename_template)
-        command = [
-            'ffmpeg',
-            '-i', live_stream_url,
-            '-c', 'copy',
-            '-c:a', 'aac',
-            '-bsf:a', 'aac_adtstoasc',
-            '-f', 'mpegts',
-            filename_template
-        ]
-        execute_ffmpeg_command(command)
+    try:
+        if live_stream_url and filename_template:
+            # print("直播網址:", live_stream_url)
+            # print("儲存路徑:", filename_template)
+            command = [
+                'ffmpeg',
+                '-i', live_stream_url,
+                '-c', 'copy',
+                '-c:a', 'aac',
+                '-bsf:a', 'aac_adtstoasc',
+                '-f', 'mpegts',
+                filename_template
+            ]
+            returncode = execute_ffmpeg_command(command)
+            if returncode == 0:
+                print(f"錄製完成: {filename_template}")
+            else:
+                print(f"錄製失敗: {filename_template}")
 
+            # 錄製結束後更新錄製清單
+            with data_lock:
+                recording_list = data_store['recording_list']
+                if url in recording_list:
+                    recording_list.remove(url)
+                data_store["recording_list"] = recording_list
+                print(f"錄製結束，已從錄製清單中移除: {url}")
+    except Exception as e:
+        print(f"執行錄製時發生錯誤: {e}")
+            
 def capture_preview_image(live_stream_url, output_dir):
     """
     從直播流中截取一張預覽圖。

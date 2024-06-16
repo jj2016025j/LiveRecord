@@ -22,7 +22,7 @@ def create_data_store():
         "recording_status": {},
         "favorites": [],
         "auto_record": [],
-        "online": [],
+        "search_history": [],
         "offline": [],
         "recording_list": [],
         "online_processes": {} ,

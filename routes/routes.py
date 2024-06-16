@@ -1,8 +1,9 @@
+from datetime import datetime
 import os
 import multiprocessing
 from flask import jsonify, render_template_string, request
 from file.file_operations import write_json_file
-from recording.get_live_stream_url import get_live_stream_url
+from recording.get_live_stream_url import repeat_get_live_stream_url
 from recording.recording import capture_preview_image, record_stream
 from dotenv import load_dotenv
 from store.data_processing import process_url_or_name
@@ -46,8 +47,14 @@ def setup_routes(app, data_store, data_lock):
     def query_and_add_list():
         # try:
             data = request.json
-            url_or_name_or_id = data.get('urlOrNameOrId').trip()
-
+            url_or_name_or_id = data.get('urlOrNameOrId').strip()
+            
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with data_lock:
+                search_history = data_store["search_history"]
+                search_history.append({url_or_name_or_id, current_time})
+                data_store["search_history"] = search_history
+                
             print(f"正在處理的網址或名稱或ID: {url_or_name_or_id}")
 
             if url_or_name_or_id is None:
@@ -63,7 +70,7 @@ def setup_routes(app, data_store, data_lock):
             existing_item = next((item for item in updated_live_list if item.get("id") == url_or_name_or_id or item.get("url") == url_or_name_or_id or item.get("name") == url_or_name_or_id), None)
             if existing_item:
                 print(f"已存在項目: ")
-                live_stream_url, status = get_live_stream_url(existing_item["url"])
+                live_stream_url, status = repeat_get_live_stream_url(existing_item["url"])
                 print(f"嘗試取得直播流: {live_stream_url}，狀態: {status}")
                 existing_item["live_stream_url"] = live_stream_url
                 existing_item["status"] = status
@@ -73,7 +80,7 @@ def setup_routes(app, data_store, data_lock):
                     existing_item["preview_image"] = preview_image_path
                     url = existing_item["url"]
                     filename_template = generate_filename(url)
-                    process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, ))
+                    process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, data_store, data_lock, url))                   
                     process.start()
 
                 for idx, item in enumerate(updated_live_list):
@@ -97,7 +104,7 @@ def setup_routes(app, data_store, data_lock):
                 if new_item:
                     filename_template = generate_filename(new_item['url'])
                     print(f'取得新資料及影片儲存地址，開始錄製...')
-                    process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template))
+                    process = multiprocessing.Process(target=record_stream, args=(new_item['live_stream_url'], filename_template, data_store, data_lock, new_item['url']))
                     process.start()
                     print(f'正在錄製...')
                     print('嘗試更新檔案')
@@ -183,6 +190,7 @@ def setup_routes(app, data_store, data_lock):
     @app.route('/api/getlist', methods=['GET'])
     def get_list():
         try:
+            print('開始查詢')
             current_page = request.args.get("currentPage", type=int, default=1)
             page_size = request.args.get("pageSize", type=int, default=10)
             is_favorite = request.args.get("isFavorite", type=lambda v: v.lower() == 'true' if v else None)
@@ -190,6 +198,7 @@ def setup_routes(app, data_store, data_lock):
             watched = request.args.get("watched", type=lambda v: v.lower() == 'true' if v else None)
             searchQuery = request.args.get("searchQuery", type=str, default="")
             # print(f'searchQuery: {searchQuery}')
+            print('取得查詢需求')
             with data_lock:
                 filtered_list = data_store["live_list"]
 
@@ -265,10 +274,10 @@ def setup_routes(app, data_store, data_lock):
                         return jsonify({"id": recording_id, "optionType": option_type, "status": "Already recording"}), 400
 
                     try:
-                        live_stream_url, status = get_live_stream_url(item["url"])
+                        live_stream_url, status = repeat_get_live_stream_url(item["url"])
                         if status == "online":
                             filename_template = generate_filename(item["url"], FILE_PATH)
-                            process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
+                            process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, data_store, data_lock, item["url"]))                   
                             process.start()
                             with data_lock:
                                 data_store["online"][item["url"]] = process

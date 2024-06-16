@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 import time
 import multiprocessing
-from recording.get_live_stream_url import get_live_stream_url
+from recording.get_live_stream_url import repeat_get_live_stream_url
 from recording.recording import capture_preview_image, record_stream
 from utils.utils import extract_name_from_url, generate_filename
 
@@ -43,6 +43,10 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
     with data_lock:
         offline_list = data_store["offline"]
         recording_list = data_store['recording_list']
+        live_list = data_store["live_list"]
+        for live in live_list:
+            if live['url'] == url:
+                live['status'] = 'offline'
 
         if url in offline_list:
             offline_list.remove(url)
@@ -55,33 +59,41 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
         # 捕捉直播流預覽圖片
         if live_stream_url:
             preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+
             for item in data_store["live_list"]:
                 if item.get("url") == url:
+                    # print('1',item["preview_image"])
                     item["preview_image"] = preview_image_path
-                    print(preview_image_path)
-                    print(item["preview_image"])
-                    break
-            for item in data_store["live_list"]:
-                if item["url"] == url:
-                    print(item["preview_image"])
+                    # print('3',item["preview_image"])
                     break
 
     if start_new_process:
         filename_template = generate_filename(url)
-        process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template))
+        process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, data_store, data_lock, url))                   
         process.start()
-        print(f'開始錄製直播 {url}。更新後線上直播列表:', recording_list)
+        if len(recording_list) > 5:
+            print(f'開始錄製直播 {url}。更新後線上直播數量: {len(recording_list)}')
+        else:
+            print(f'開始錄製直播 {url}。更新後線上直播列表:', recording_list)
     else:
-        print(f'直播 {url} 現已在線。更新後線上直播列表:', recording_list)
-
+        if len(recording_list) > 5:
+            print(f'直播 {url} 現已在線。更新後線上直播數量: {len(recording_list)}')
+        else:
+            print(f'直播 {url} 現已在線。更新後線上直播列表:', recording_list)
+            
 def handle_offline_stream(url, data_store, data_lock):
     """
     處理離線直播流邏輯
     """
     with data_lock:
+        live_list = data_store["live_list"]
         offline_list = data_store["offline"]
         recording_list = data_store['recording_list']
 
+        for live in live_list:
+            if live['url'] == url:
+                live['status'] = 'offline'
+                
         # 如果 URL 已經在離線列表中，則跳過
         if url in offline_list:
             return
@@ -127,6 +139,7 @@ def monitor_streams(data_store, data_lock):
     """
     i = 0
     try:
+        sleep_time = 60
         while True:
             i += 1
             print(f" =================== 第{i}次監聽所有直播... =================== ")
@@ -139,7 +152,7 @@ def monitor_streams(data_store, data_lock):
                     print(f"{url} 正在錄製中，跳過...")
                     continue
 
-                live_stream_url, status = get_live_stream_url(url)
+                live_stream_url, status = repeat_get_live_stream_url(url)
                 check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
             
             sleep_time = 60
@@ -161,7 +174,7 @@ def start_monitoring_and_recording(data_store, data_lock):
     print(f" =================== {current_time} 直播錄製開始初始化，總共 {len(autoRecord)} 筆資料 =================== ")
 
     for url in autoRecord:
-        live_stream_url, status = get_live_stream_url(url)
+        live_stream_url, status = repeat_get_live_stream_url(url)
         check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
 
     print(f" =================== {current_time} 直播錄製初始化結果: =================== ")

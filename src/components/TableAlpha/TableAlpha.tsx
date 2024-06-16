@@ -55,6 +55,39 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
       })
       : undefined;
 
+    type TableRowSelection<T> = TableProps<T>['rowSelection'];
+
+    interface DataType {
+      key: React.ReactNode;
+      name: string;
+      age: number;
+      address: string;
+      children?: DataType[];
+    }
+
+    const rowSelection: TableRowSelection<DataType> = {
+      onChange: (selectedRowKeys, selectedRows) => {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      },
+      onSelect: (record, selected, selectedRows) => {
+        console.log(record, selected, selectedRows);
+      },
+      onSelectAll: (selected, selectedRows, changeRows) => {
+        console.log(selected, selectedRows, changeRows);
+      },
+    };
+
+    const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+      const params = {
+        pagination,
+        filters,
+        sorter,
+      };
+
+      // 打印出來檢查
+      console.log('Table change params:', params);
+    };
+
     useEffect(() => {
       if (!syncPage) return;
       syncPage(page);
@@ -92,12 +125,14 @@ const TableAlpha = forwardRef<HTMLDivElement, ITableAlphaProps & TableProps>(
               </Space>
             );
           }}
+          rowSelection={{ ...rowSelection }}
           pagination={false}
           rowClassName={() => styles.test}
           scroll={{
             x: 'max-content',
             y: 'calc(90vh - 250px)',
           }}
+          onChange={handleTableChange}
           {...{ ...tableProps, columns }}
         />
       </div>

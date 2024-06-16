@@ -1,6 +1,7 @@
 import { useUpdateListStatus } from '@/api';
 import { ChannelStatus } from '@/utils';
-import { TableProps, Typography, Image, Checkbox, Button } from 'antd';
+import { CopyOutlined } from '@ant-design/icons';
+import { TableProps, Typography, Image, Checkbox, Button, message, Tooltip } from 'antd';
 import { Link } from 'react-router-dom';
 
 const liveOptions = [
@@ -32,47 +33,41 @@ const useChannelColumns = () => {
 
   const columns: TableProps<RegistrationOptions>['columns'] = [
     {
-      title: <Checkbox />,
-      key: 'checked',
-      align: 'center',
-      render: () => {
-        return <Checkbox />;
-      },
-      width: 50,
-    },
-    {
       title: '圖片',
       dataIndex: 'preview_image',
       key: 'preview_image',
       align: 'center',
       render: (preview_image) => {
-        console.log('preview_image', preview_image)
-        return preview_image ?
+        // console.log('preview_image', preview_image);
+        const imageSize = 100; // 正方形的大小
+        const borderRadius = 10; // 圓角半徑
+        return preview_image ? (
           <Image
             alt="Preview"
-            width={200}
+            width={imageSize}
+            height={imageSize}
             src={preview_image}
-          /> : <>無</>;
+            style={{
+              borderRadius: `${borderRadius}px`,
+              objectFit: 'cover' // 保持图片内容适应正方形
+            }}
+          />
+        ) : (
+          <>無</>
+        );
       },
       width: 50,
+      filters: [
+        { text: '有預覽圖', value: 'haveImage' },
+        { text: '沒有預覽圖', value: 'noImage' },
+      ],
     },
-    // {
-    //   title: '縮圖預覽',
-    //   dataIndex: 'previewImage',
-    //   align: 'center',
-    //   key: 'previewImage',
-    //   render: (previewImage) => (
-    //     <>
-    //       <Image src={previewImage} alt="Logo" />
-    //     </>
-    //   ),
-    //   width: 80,
-    // },
     {
       title: '名稱',
       dataIndex: 'name',
       key: 'name',
       align: 'center',
+      sorter: true,
       render: (name) => <Text>{name || '無'}</Text>,
       width: 100,
     },
@@ -81,32 +76,58 @@ const useChannelColumns = () => {
       dataIndex: 'url',
       key: 'url',
       align: 'center',
+      sorter: true,
       render: (url) => {
+        const maxLength = 50;
         const needsTruncation = url.length > maxLength;
         const truncatedText = needsTruncation
           ? `${url.slice(0, 4)}...${url.slice(-4)}`
           : url;
-        // return <Text>{truncatedText || '無'}</Text>
-        return <Link
-          style={{
-            color: '#ED9200',
-            paddingInline: 15,
-          }}
-          to={url}
-          target='_blank'
-        >
-          {url || '無'}
-        </Link>
-
+        const copyToClipboard = () => {
+          navigator.clipboard.writeText(url)
+            .then(() => {
+              message.success('網址已成功複製');
+            })
+            .catch(err => {
+              message.error('複製網址失敗');
+            });
+        };
+        const handleLinkClick = (e: { preventDefault: () => void; }) => {
+          e.preventDefault();
+          window.open(url, '_blank');
+        };
+        return (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Tooltip title={truncatedText}>
+              <Link
+                style={{
+                  color: '#ED9200',
+                  paddingInline: 15,
+                }}
+                onClick={handleLinkClick} to={''}              >
+                {truncatedText || '無'}
+              </Link>
+            </Tooltip>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={copyToClipboard}
+              style={{
+                marginLeft: 8,
+              }}
+            />
+          </div>
+        );
       },
-      width: 100,
     },
-
     {
       title: '狀態',
       dataIndex: 'status',
       key: 'status',
       align: 'center',
+      filters: [
+        { text: '在線', value: 'online' },
+        { text: '離線', value: 'offline' },
+      ],
       render: (status: string) => {
         if (status === 'online') return <span>正在線上</span>;
         if (status === 'offline') return <span>已離線</span>;
@@ -116,6 +137,66 @@ const useChannelColumns = () => {
       },
       width: 80,
     },
+    {
+      title: '自動錄影',
+      dataIndex: 'autoRecord',
+      key: 'autoRecord',
+      align: 'center',
+      render: (autoRecord) => {
+        return <Text>{autoRecord == true ? '自動錄影' : '不自動錄影'}</Text>;
+      },
+      width: 100,
+      filters: [
+        { text: '自動錄影', value: 'true' },
+        { text: '不自動錄影', value: 'false' },
+      ],
+    },
+    {
+      title: '其他選項',
+      key: 'options',
+      align: 'center',
+      render: (channel) => {
+        const defaultValue = [];
+        if (channel.autoRecord) defaultValue.push('autoRecord');
+        if (channel.isFavorite) defaultValue.push('isFavorite');
+        return <Checkbox.Group
+          options={liveOptions}
+          defaultValue={defaultValue}
+          onChange={(value) => { onChange(channel.id, value) }}
+        />;
+      },
+      width: 100,
+    },
+    {
+      title: '操作',
+      dataIndex: 'operate',
+      key: 'operate',
+      align: 'center',
+      render: (operate) => {
+        return <Button onClick={operate}>{'查看預覽畫面'}</Button>;
+      },
+      width: 100,
+    },
+    // {
+    //   title: '最愛',
+    //   dataIndex: 'viewed',
+    //   key: 'viewed',
+    //   align: 'center',
+    //   render: (viewed) => {
+    //     return <Text>{viewed == true ? '已觀看' : '未觀看'}</Text>;
+    //   },
+    //   width: 100,
+    // },
+    // {
+    //   title: '已觀看',
+    //   dataIndex: 'viewed',
+    //   key: 'viewed',
+    //   align: 'center',
+    //   render: (viewed) => {
+    //     return <Text>{viewed == true ? '已觀看' : '未觀看'}</Text>;
+    //   },
+    //   width: 100,
+    // },
     // {
     //   title: '影片大小',
     //   dataIndex: 'size',
@@ -136,42 +217,6 @@ const useChannelColumns = () => {
     //   },
     //   width: 100,
     // },
-    {
-      title: '其他選項',
-      key: 'options',
-      align: 'center',
-      render: (channel) => {
-        const defaultValue = [];
-        if (channel.autoRecord) defaultValue.push('autoRecord');
-        if (channel.isFavorite) defaultValue.push('isFavorite');
-        return <Checkbox.Group
-          options={liveOptions}
-          defaultValue={defaultValue}
-          onChange={(value) => { onChange(channel.id, value) }}
-        />;
-      },
-      width: 100,
-    },
-    {
-      title: '已觀看',
-      dataIndex: 'viewed',
-      key: 'viewed',
-      align: 'center',
-      render: (viewed) => {
-        return <Text>{viewed == true ? '已觀看' : '未觀看'}</Text>;
-      },
-      width: 100,
-    },
-    {
-      title: '操作',
-      dataIndex: 'operate',
-      key: 'operate',
-      align: 'center',
-      render: (operate) => {
-        return <Button onClick={operate}>{'查看預覽畫面'}</Button>;
-      },
-      width: 100,
-    },
   ];
   return { columns };
 };

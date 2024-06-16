@@ -1,7 +1,8 @@
 from datetime import datetime
+import multiprocessing
 import os
+from recording.get_live_stream_url import repeat_get_live_stream_url
 from utils.utils import extract_name_from_url, generate_unique_id, generate_url_from_name
-from recording.get_live_stream_url import get_live_stream_url
 from recording.recording import capture_preview_image
 
 PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
@@ -29,7 +30,7 @@ def check_and_complete_data(item):
     
     # if not item.get('live_stream_url') and item.get('url'):
     #     print(item['url'])
-    #     item['live_stream_url'], item['status'] = get_live_stream_url(item['url'])
+    #     item['live_stream_url'], item['status'] = repeat_get_live_stream_url(item['url'])
     # if item.get('live_stream_url') and not item.get('preview_image'):
     #     print(item['live_stream_url'])
     #     item['preview_image'] = capture_preview_image(item['live_stream_url'], 'preview_images')
@@ -46,7 +47,7 @@ def process_url_or_name(data_store, data_lock, url, name=None):
     if not url:
         raise ValueError("URL 不能為空")
     
-    live_stream_url, status = get_live_stream_url(url)
+    live_stream_url, status = repeat_get_live_stream_url(url)
     print(f"嘗試取得直播流: {live_stream_url}，狀態: {status}")
     preview_image_path = ''  # 赋予默认值
     if status in ["online", "offline"]:
@@ -54,7 +55,8 @@ def process_url_or_name(data_store, data_lock, url, name=None):
         new_id = generate_unique_id()
         if live_stream_url:
             print('正在線上，取得預覽圖')
-            preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
+            process = multiprocessing.Process(target=capture_preview_image, args=(live_stream_url, PREVIEW_IMAGE_DIR))
+            process.start()
             print(f'取得圖片的儲存路徑{preview_image_path}')
         
         # 获取当前 live_list 长度作为流水号
