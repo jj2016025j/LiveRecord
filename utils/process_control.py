@@ -167,7 +167,7 @@ def monitor_streams(data_store, data_lock):
                 live_stream_url, status = repeat_get_live_stream_url(url)
                 check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
             
-            sleep_time = 60
+            sleep_time = 0
             print(f" =================== 第{i}次監聽結束，等待{sleep_time}秒... =================== ")
             log_monitoring_status(data_store, data_lock)
             time.sleep(sleep_time)

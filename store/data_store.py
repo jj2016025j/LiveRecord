@@ -1,3 +1,5 @@
+# store/data_store.py
+from store.models import Session, LiveStream
 from store.data_processing import check_and_complete_data
 from datetime import datetime
 import os
@@ -177,3 +179,108 @@ def initialize_data_store(data_store, data_lock):
         print("初始化進程被中斷")
     except Exception as e:
         print(f"初始化過程中發生未知錯誤: {e}")
+        
+
+def initialize_data_store(data_store, data_lock):
+    """
+    初始化直播流列表資料，將資料從資料庫載入至 data_store。
+    """
+    try:
+        session = Session()
+        live_streams = session.query(LiveStream).all()
+
+        live_list = []
+        auto_record = []
+        favorites = []
+
+        for stream in live_streams:
+            item = {
+                'id': stream.id,
+                'name': stream.name,
+                'url': stream.url,
+                'status': stream.status,
+                'isFavorite': stream.is_favorite,
+                'autoRecord': stream.auto_record,
+                'viewed': stream.viewed,
+                'live_stream_url': stream.live_stream_url,
+                'preview_image': stream.preview_image,
+                'createTime': stream.create_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'lastViewTime': stream.last_view_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'serial_number': stream.serial_number
+            }
+            live_list.append(item)
+            if stream.auto_record:
+                auto_record.append(stream.url)
+            if stream.is_favorite:
+                favorites.append(stream.id)
+
+        with data_lock:
+            data_store["live_list"] = live_list
+            data_store["autoRecord"] = auto_record
+            data_store["favorites"] = favorites
+            data_store["online"] = []
+            data_store["offline"] = []
+
+        session.close()
+        print(f"資料初始化完成，共有 {len(live_list)} 條資料。")
+        
+    except Exception as e:
+        print(f"初始化資料庫時發生錯誤: {e}")
+
+def update_data_store_and_file(data_store, new_item, data_lock):
+    """
+    將新項目新增到資料庫並更新 data_store。
+    """
+    try:
+        session = Session()
+        new_stream = LiveStream(
+            id=new_item['id'],
+            name=new_item['name'],
+            url=new_item['url'],
+            status=new_item['status'],
+            is_favorite=new_item['isFavorite'],
+            auto_record=new_item['autoRecord'],
+            viewed=new_item['viewed'],
+            live_stream_url=new_item['live_stream_url'],
+            preview_image=new_item['preview_image'],
+            create_time=new_item['createTime'],
+            last_view_time=new_item['lastViewTime'],
+            serial_number=new_item['serial_number']
+        )
+        session.add(new_stream)
+        session.commit()
+
+        with data_lock:
+            data_store["live_list"].append(new_item)
+        
+        session.close()
+        print("資料更新完成並已儲存至資料庫。")
+        
+    except Exception as e:
+        print(f"更新資料庫時發生錯誤: {e}")
+
+def delete_item_from_data_store(url_or_name_or_id, data_store, data_lock):
+    """
+    從資料庫和 data_store 刪除項目。
+    """
+    try:
+        session = Session()
+        stream = session.query(LiveStream).filter(
+            (LiveStream.id == url_or_name_or_id) |
+            (LiveStream.url == url_or_name_or_id) |
+            (LiveStream.name == url_or_name_or_id)
+        ).first()
+        if stream:
+            session.delete(stream)
+            session.commit()
+
+            with data_lock:
+                data_store["live_list"] = [item for item in data_store["live_list"] if item['id'] != stream.id]
+
+            session.close()
+            print(f"已刪除項目：{url_or_name_or_id}")
+        else:
+            print(f"未找到項目：{url_or_name_or_id}")
+
+    except Exception as e:
+        print(f"刪除資料庫項目時發生錯誤: {e}")

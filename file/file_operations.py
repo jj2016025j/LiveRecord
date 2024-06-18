@@ -27,11 +27,9 @@ def write_json_file(data_store):
     """
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as file:
-            # 获取文件锁
             portalocker.lock(file, portalocker.LOCK_EX)
             data_dict = dict(data_store)
             
-            # 過濾掉為空的鍵
             def filter_empty_keys(d):
                 if isinstance(d, dict):
                     return {k: filter_empty_keys(v) for k, v in d.items() if v not in (None, '', [])}
@@ -47,7 +45,6 @@ def write_json_file(data_store):
             
             json.dump(filtered_data_dict, file, ensure_ascii=False, indent=4)
             
-            # 解锁文件必须在文件关闭之前执行
             portalocker.unlock(file)
     except Exception as e:
         print(f"寫入 JSON 文件時發生錯誤: {e}")
@@ -60,7 +57,6 @@ def write_json_file(data_store):
             
             data_dict = dict(data_store)
             
-            # 過濾掉為空的鍵
             def filter_empty_keys(d):
                 if isinstance(d, dict):
                     return {k: filter_empty_keys(v) for k, v in d.items() if v not in (None, '', [])}
@@ -76,7 +72,6 @@ def write_json_file(data_store):
             
             json.dump(filtered_data_dict, file, ensure_ascii=False, indent=4)
             
-            # 解锁文件必须在文件关闭之前执行
             portalocker.unlock(file)
     except Exception as e:
         print(f"寫入 JSON 文件時發生錯誤: {e}")
