@@ -213,11 +213,11 @@ def setup_routes(app, data_store, data_lock):
             search_query = data.get("searchQuery", "")
             filters = data.get('filters', {})
             sorter = data.get('sorter', {})
-            print(current_page)
-            print(page_size)
-            print(search_query)
-            print(filters)
-            print(sorter)
+            # print(current_page)
+            # print(page_size)
+            # print(search_query)
+            # print(filters)
+            # print(sorter)
 
             print('取得查詢需求')
             with data_lock:

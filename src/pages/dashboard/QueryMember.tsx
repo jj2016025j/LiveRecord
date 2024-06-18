@@ -34,7 +34,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
   useEffect(() => {
     if (ChannelInfo) {
       setOldLiveUrl(ChannelInfo.live_stream_url);
-      setLiveUrl(ChannelInfo.live_stream_url); // 更新 liveUrl 狀態
+      // setLiveUrl(ChannelInfo.live_stream_url); // 更新 liveUrl 狀態
     }
   }, [ChannelInfo, setLiveUrl]);
   

@@ -151,7 +151,7 @@ def monitor_streams(data_store, data_lock):
     """
     i = 0
     try:
-        sleep_time = 60
+        sleep_time = 0
         while True:
             i += 1
             print(f" =================== 第{i}次監聽所有直播... =================== ")

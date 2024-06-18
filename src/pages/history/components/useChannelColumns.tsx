@@ -173,7 +173,7 @@ const useChannelColumns = (porps: { setLiveUrl: any; }) => {
       key: 'operate',
       align: 'center',
       render: (record) => {
-        return <Button onClick={setLiveUrl(record.live_stream_url)}>{'查看預覽畫面'}</Button>;
+        return <Button onClick={() => setLiveUrl(record.live_stream_url)}>{'查看預覽畫面'}</Button>;
       },
       width: 100,
     },
