@@ -3,7 +3,7 @@ from datetime import datetime
 import os
 from file.file_operations import read_json_file, write_json_file
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
-FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
+FILE_PATH = os.getenv('FILE_PATH', r'/Users/leechiensheng/Movies')
         
 # 更新 data_store 並寫入文件的函數
 # def update_data_store_and_file(data_store, new_item):

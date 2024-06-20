@@ -17,7 +17,7 @@ load_dotenv()
 # 從環境變數中讀取 JSON 文件路徑
 JSON_FILE_PATH = os.getenv('JSON_FILE_PATH', 'live_list.json')
 PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
-FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
+FILE_PATH = os.getenv('FILE_PATH', r'/Users/leechiensheng/Movies')
     
 def setup_routes(app, data_store, data_lock):
 

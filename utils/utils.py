@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 import uuid
 
-FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
+FILE_PATH = os.getenv('FILE_PATH', r'/Users/leechiensheng/Movies')
 
 def generate_unique_id():
     """
@@ -92,7 +92,7 @@ def extract_name_from_stream_url(url):
 #     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 #     return f"{fixed_path}\\{file_name}_{timestamp}.ts"
 
-def generate_filename(url, fixed_path = FILE_PATH):
+def generate_filename(url, fixed_path=FILE_PATH):
     """
     生成檔案名稱及路徑，如果同名則更改名稱
     """
@@ -101,4 +101,4 @@ def generate_filename(url, fixed_path = FILE_PATH):
     if match:
         file_name = match.group(1)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return f"{fixed_path}\\{file_name}_{timestamp}.ts"
+    return os.path.join(fixed_path, f"{file_name}_{timestamp}.ts")

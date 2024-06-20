@@ -54,7 +54,7 @@ def record_stream(live_stream_url, filename_template, data_store, data_lock, url
                         item["status"] = 'offline'
                         item["lastViewTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
  
-                print(f"錄製結束，已從錄製清單中移除: {url}")
+                print(f"錄製結束，已從錄製清單中移除: {url},更新後錄製直撥列表：{data_store['recording_list']}")
     except Exception as e:
         print(f"執行錄製時發生錯誤: {e}")
             
