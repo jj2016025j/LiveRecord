@@ -1,0 +1,31 @@
+@import "../../assets/color.module.scss";
+
+.test {
+  border: 2px solid blue;
+}
+.filter {
+  padding-right: 10px;
+  transition: color 0.2s;
+  color: $accessories;
+  &:hover {
+    color: rgb(192, 192, 192);
+  }
+  &:active {
+    color: $accessories;
+  }
+}
+
+.box-sorter {
+  padding-right: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  .sorter {
+    font-size: 9px;
+    transition: color 0.2s;
+    color: $accessories;
+    &.active {
+      color: rgb(87, 255, 241);
+    }
+  }
+}
