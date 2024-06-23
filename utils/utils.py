@@ -1,13 +1,14 @@
 import os
 import re
-from datetime import datetime
 import uuid
+from datetime import datetime
 
 FILE_PATH = os.getenv('FILE_PATH', r'D:\01照片分類\moniturbate')
 
 def generate_unique_id():
     """
-    生成唯一ID的函數
+    生成唯一 ID
+    :return: 唯一 ID
     """
     return str(uuid.uuid4())
 
@@ -102,3 +103,10 @@ def generate_filename(url, fixed_path = FILE_PATH):
         file_name = match.group(1)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"{fixed_path}\\{file_name}_{timestamp}.ts"
+
+def current_timestamp():
+    """
+    獲取當前時間戳
+    :return: 當前時間戳
+    """
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')

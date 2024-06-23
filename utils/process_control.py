@@ -1,11 +1,10 @@
-# process_control.py
 from datetime import datetime
-import os
-import time
 import multiprocessing
+import time
 from recording.get_live_stream_url import repeat_get_live_stream_url
-from recording.recording import capture_preview_image, record_stream
+from recording.recording import capture_preview_image, start_recording_process
 from utils.utils import extract_name_from_url, generate_filename
+import os
 
 PREVIEW_IMAGE_DIR = os.getenv('PREVIEW_IMAGE_DIR', r'src\assets')
 
@@ -62,17 +61,14 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
 
             for item in data_store["live_list"]:
                 if item.get("url") == url:
-                    # print('1',item["preview_image"])
                     item["preview_image"] = preview_image_path
                     item["status"] = 'online'
                     item["lastViewTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    
-                    # print('3',item["preview_image"])
                     break
 
     if start_new_process:
         filename_template = generate_filename(url)
-        process = multiprocessing.Process(target=record_stream, args=(live_stream_url, filename_template, data_store, data_lock, url))                   
+        process = multiprocessing.Process(target=start_recording_process, args=(live_stream_url, filename_template, data_store, data_lock, url))                   
         process.start()
         if len(recording_list) > 5:
             print(f'開始錄製直播 {url}。更新後線上直播數量: {len(recording_list)}')
@@ -97,7 +93,6 @@ def handle_offline_stream(url, data_store, data_lock):
             if live['url'] == url:
                 live['status'] = 'offline'
                 
-        # 如果 URL 已經在離線列表中，則跳過
         if url in offline_list:
             return
         
@@ -203,8 +198,5 @@ def start_and_monitor_streams(data_store, data_lock):
     """
     初始化直播流狀態，並開始監聽直播流狀態。
     """
-    # 初始化直播流狀態
     start_monitoring_and_recording(data_store, data_lock)
-
-    # 開始監聽直播流狀態
     monitor_streams(data_store, data_lock)
