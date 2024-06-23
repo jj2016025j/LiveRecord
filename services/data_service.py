@@ -54,12 +54,12 @@ def add_new_item(url_or_name, data_store, data_lock):
 
 def filter_items(items, filters, search_query, sorter):
     filtered_list = items
-    if 'auto_record' in filters and filters['auto_record']:
-        auto_record_filters = filters['auto_record']
+    if 'autoRecord' in filters and filters['autoRecord']:
+        auto_record_filters = filters['autoRecord']
         filtered_list = [
             item for item in filtered_list 
-            if ('true' in auto_record_filters and item.auto_record) or 
-            ('false' in auto_record_filters and not item.auto_record)
+            if ('true' in auto_record_filters and item.autoRecord) or 
+            ('false' in auto_record_filters and not item.autoRecord)
         ]
 
     if 'preview_image' in filters and filters['preview_image']:
@@ -94,6 +94,6 @@ def filter_items(items, filters, search_query, sorter):
         sorter_order = sorter['order']
         reverse = sorter_order == 'descend'
         if sorter_key in ["id", "name", "url"]:
-            filtered_list = sorted(filtered_list, key=lambda x: x.get(sorter_key, ''), reverse=reverse)
+            filtered_list = sorted(filtered_list, key=lambda x: getattr(x, sorter_key), reverse=reverse)
 
     return filtered_list

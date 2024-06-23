@@ -41,7 +41,7 @@ def execute_query(query, params=None):
         conn.commit()
         cursor.close()
         conn.close()
-        print("SQL 執行成功")
+        # print("SQL 執行成功")
 
 def fetch_query(query, params=None):
     """

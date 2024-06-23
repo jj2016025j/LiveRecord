@@ -1,6 +1,8 @@
 from datetime import datetime
 import multiprocessing
+import sys
 import time
+from db.operations import update_live_stream
 from recording.get_live_stream_url import repeat_get_live_stream_url
 from recording.recording import capture_preview_image, start_recording_process
 from utils.utils import extract_name_from_url, generate_filename
@@ -44,8 +46,9 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
         recording_list = data_store['recording_list']
         live_list = data_store["live_list"]
         for live in live_list:
-            if live['url'] == url:
-                live['status'] = 'offline'
+            if live.url == url:
+                live.status = 'online'  # 更新为在线状态
+                update_live_stream(live)  # 更新数据库中的状态
 
         if url in offline_list:
             offline_list.remove(url)
@@ -60,10 +63,11 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
             preview_image_path = capture_preview_image(live_stream_url, PREVIEW_IMAGE_DIR)
 
             for item in data_store["live_list"]:
-                if item.get("url") == url:
-                    item["preview_image"] = preview_image_path
-                    item["status"] = 'online'
-                    item["lastViewTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                if item.url == url:
+                    item.preview_image = preview_image_path
+                    item.status = 'online'
+                    item.lastViewTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    update_live_stream(item)  # 更新数据库中的状态
                     break
 
     if start_new_process:
@@ -79,7 +83,7 @@ def handle_online_stream(url, live_stream_url, data_store, data_lock):
             print(f'直播 {url} 現已在線。更新後線上直播數量: {len(recording_list)}')
         else:
             print(f'直播 {url} 現已在線。更新後線上直播列表:', recording_list)
-            
+                        
 def handle_offline_stream(url, data_store, data_lock):
     """
     處理離線直播流邏輯
@@ -90,9 +94,11 @@ def handle_offline_stream(url, data_store, data_lock):
         recording_list = data_store['recording_list']
 
         for live in live_list:
-            if live['url'] == url:
-                live['status'] = 'offline'
+            if live.url == url:
+                live.status = 'offline'  # 更新为离线状态
+                update_live_stream(live)  # 更新数据库中的状态
                 
+        # 如果 URL 已經在離線列表中，則跳過
         if url in offline_list:
             return
         
@@ -104,12 +110,17 @@ def handle_offline_stream(url, data_store, data_lock):
         data_store["offline"] = offline_list
         
         for item in data_store["live_list"]:
-            if item.get("url") == url:
-                item["status"] = 'offline'
+            if item.url == url:
+                item.status = 'offline'
+                update_live_stream(item)  # 更新数据库中的状态
                 break
 
-    print(f'直播 {extract_name_from_url(url)} 已離線。更新後離線直播列表:', len(data_store['offline']))
- 
+    # 使用 sys.stdout.write 和 sys.stdout.flush 动态更新打印行
+    offline_count = len(data_store['offline'])
+    message = f'更新後離線直播列表: {offline_count}\r'
+    sys.stdout.write(message)
+    sys.stdout.flush()
+     
 def log_monitoring_status(data_store, data_lock):
     """
     日誌記錄監聽狀態

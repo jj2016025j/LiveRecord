@@ -35,8 +35,8 @@ def initialize_data_store(data_store, data_lock):
     """
     try:
         live_list = get_all_live_streams()
-        auto_record = [item["url"] for item in live_list if item.get("auto_record")]
-        favorites = [item["id"] for item in live_list if item.get("isFavorite")]
+        auto_record = [item.url for item in live_list if item.auto_record]
+        favorites = [item.id for item in live_list if item.isFavorite]
 
         with data_lock:
             data_store["live_list"] = live_list
@@ -50,7 +50,7 @@ def initialize_data_store(data_store, data_lock):
 
     except Exception as e:
         print(f"初始化資料庫時發生錯誤: {e}")
-        
+                
 def setup_db():
     """
     初始化資料庫和資料表

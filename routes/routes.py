@@ -23,16 +23,16 @@ def setup_routes(app, data_store, data_lock):
         existing_item = get_live_stream_by_url_or_name(url_or_name_or_id)
         if existing_item:
             updated_item = update_item_status(existing_item, data_store, data_lock)
-            return jsonify(updated_item), 200
+            return jsonify(updated_item.__dict__), 200
         else:
             new_item = add_new_item(url_or_name_or_id, data_store, data_lock)
             if new_item:
-                update_data_store_and_file(data_store, new_item, data_lock)
-                
-                return jsonify(new_item), 201
+                with data_lock:
+                    data_store["live_list"].append(new_item)
+                return jsonify(new_item.__dict__), 201
 
         return jsonify({"message": "未找到頁面"}), 404
-
+    
     @app.route('/api/deletelist', methods=['DELETE'])
     @handle_errors
     def delete_list():
@@ -64,35 +64,40 @@ def setup_routes(app, data_store, data_lock):
         auto_record_channels = [channel for channel in channels if channel.auto_record]
         return jsonify(auto_record_channels), 200
 
+
     @app.route('/api/getlist', methods=['POST'])
     @handle_errors
     def get_list():
-        data = request.get_json()
-        current_page = data.get("currentPage", 1)
-        page_size = data.get("pageSize", 10)
-        search_query = data.get("searchQuery", "")
-        filters = data.get('filters', {})
-        sorter = data.get('sorter', {})
+        try:
+            data = request.get_json()
+            current_page = data.get("currentPage", 1)
+            page_size = data.get("pageSize", 10)
+            search_query = data.get("searchQuery", "")
+            filters = data.get('filters', {})
+            sorter = data.get('sorter', {})
 
-        items = get_all_live_streams()
-        filtered_list = filter_items(items, filters, search_query, sorter)
+            items = get_all_live_streams()
+            filtered_list = filter_items(items, filters, search_query, sorter)
 
-        total_records = len(filtered_list)
-        total_pages = (total_records + page_size - 1) // page_size
-        start = (current_page - 1) * page_size
-        end = start + page_size
-        paginated_list = filtered_list[start:end]
+            total_records = len(filtered_list)
+            total_pages = (total_records + page_size - 1) // page_size
+            start = (current_page - 1) * page_size
+            end = start + page_size
+            paginated_list = filtered_list[start:end]
 
-        response = {
-            "channelList": paginated_list,
-            "totalCount": total_records,
-            "totalPages": total_pages,
-            "currentPage": current_page,
-            "pageSize": page_size,
-            "serverStatus": 'success' if paginated_list else 'false'
-        }
+            response = {
+                "channelList": [item.__dict__ for item in paginated_list],  # 將 LiveStream 對象轉換為字典
+                "totalCount": total_records,
+                "totalPages": total_pages,
+                "currentPage": current_page,
+                "pageSize": page_size,
+                "serverStatus": 'success' if paginated_list else 'false'
+            }
 
-        return jsonify(response), 200
+            return jsonify(response), 200
+        except Exception as e:
+            print(f"處理 /api/getlist 請求時發生錯誤: {e}")
+            return jsonify({"message": str(e)}), 500
 
     @app.route('/api/recordingcontrol', methods=['POST'])
     @handle_errors

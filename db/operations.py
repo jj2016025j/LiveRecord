@@ -15,7 +15,7 @@ def add_live_stream(data):
         data.viewed, data.live_stream_url, data.preview_image, data.createTime,
         data.lastViewTime, data.serial_number
     )
-    print("新增直播流資料:", params)
+    # print("新增直播流資料:", params)
     execute_query(query, params)
 
 def update_live_stream(data):
@@ -34,7 +34,7 @@ def update_live_stream(data):
         data.live_stream_url, data.preview_image, data.createTime, data.lastViewTime,
         data.serial_number, data.id
     )
-    print("更新直播流資料:", params)
+    # print("更新直播流資料:", params)
     execute_query(query, params)
 
 def delete_live_stream(stream_id):
