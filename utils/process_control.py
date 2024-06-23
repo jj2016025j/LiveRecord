@@ -151,7 +151,7 @@ def monitor_streams(data_store, data_lock):
             i += 1
             print(f" =================== 第{i}次監聽所有直播... =================== ")
             with data_lock:
-                autoRecord_list = data_store['autoRecord']
+                autoRecord_list = data_store['auto_record']
                 recording_list = data_store['recording_list']
 
             for url in autoRecord_list:
@@ -162,7 +162,7 @@ def monitor_streams(data_store, data_lock):
                 live_stream_url, status = repeat_get_live_stream_url(url)
                 check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
             
-            sleep_time = 0
+            sleep_time = 30
             print(f" =================== 第{i}次監聽結束，等待{sleep_time}秒... =================== ")
             log_monitoring_status(data_store, data_lock)
             time.sleep(sleep_time)
@@ -172,15 +172,15 @@ def monitor_streams(data_store, data_lock):
     
 def start_monitoring_and_recording(data_store, data_lock):
     """
-    初始化直播流狀態。
+    初始化直播流狀態
     """
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with data_lock:
-        autoRecord = data_store['autoRecord']
+        auto_record = data_store['auto_record']
 
-    print(f" =================== {current_time} 直播錄製開始初始化，總共 {len(autoRecord)} 筆資料 =================== ")
+    print(f" =================== {current_time} 直播錄製開始初始化，總共 {len(auto_record)} 筆資料 =================== ")
 
-    for url in autoRecord:
+    for url in auto_record:
         live_stream_url, status = repeat_get_live_stream_url(url)
         check_and_record_stream(url, live_stream_url if status == "online" else None, status, data_store, data_lock)
 
@@ -193,6 +193,7 @@ def start_monitoring_and_recording(data_store, data_lock):
         if not (data_store["recording_list"] or data_store["offline"]):
             print(f"{current_time} 無任何自動錄製的直播在線 初始化完畢")
     print(f" =================== {current_time} 初始化直播流完成... =================== ")
+
 
 def start_and_monitor_streams(data_store, data_lock):
     """

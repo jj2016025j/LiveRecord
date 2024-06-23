@@ -7,7 +7,7 @@ interface IQueryMemberProps {
   setLiveUrl: any
 }
 const options = [
-  { label: '自動錄影', value: 'autoRecord' },
+  { label: '自動錄影', value: 'auto_record' },
   { label: '加到最愛', value: 'isFavorite' },
 ];
 
@@ -52,7 +52,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
     const statusUpdate = {
       urlOrNameOrId: ChannelInfo?.id,
       isFavorite: checkedValues.includes('isFavorite'),
-      autoRecord: checkedValues.includes('autoRecord'),
+      auto_record: checkedValues.includes('auto_record'),
       viewed: checkedValues.includes('viewed')
     };
     updateListStatus(statusUpdate)
@@ -127,7 +127,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         children: (
           <Checkbox.Group
             options={options}
-            defaultValue={['autoRecord']}
+            defaultValue={['auto_record']}
             onChange={onChange}
           />
         ),

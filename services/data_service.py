@@ -54,8 +54,8 @@ def add_new_item(url_or_name, data_store, data_lock):
 
 def filter_items(items, filters, search_query, sorter):
     filtered_list = items
-    if 'autoRecord' in filters and filters['autoRecord']:
-        auto_record_filters = filters['autoRecord']
+    if 'auto_record' in filters and filters['auto_record']:
+        auto_record_filters = filters['auto_record']
         filtered_list = [
             item for item in filtered_list 
             if ('true' in auto_record_filters and item.auto_record) or 

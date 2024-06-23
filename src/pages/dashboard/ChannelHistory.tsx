@@ -53,7 +53,7 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
   }, [data])
 
   type Filters = {
-    autoRecord: string[] | null,
+    auto_record: string[] | null,
     preview_image: string[] | null,
     status: string[] | null,
   }
@@ -68,13 +68,13 @@ const ChannelHistory: React.FunctionComponent<IChannelHistoryProps> = (props) =>
       filters,
       sorter,
     };
-    const { autoRecord, preview_image, status } = filters;
+    const { auto_record, preview_image, status } = filters;
     const { field, order } = sorter;
 
     // console.log('Sorter field:', field);
     // console.log('Sorter order:', order);
 
-    setFilters({ autoRecord, preview_image, status });
+    setFilters({ auto_record, preview_image, status });
     setSorter({ field, order });
 
     console.log('Table change params:', params);

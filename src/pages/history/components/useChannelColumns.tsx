@@ -5,7 +5,7 @@ import { TableProps, Typography, Image, Checkbox, Button, message, Tooltip } fro
 import { Link } from 'react-router-dom';
 
 const liveOptions = [
-  { label: '自動錄影', value: 'autoRecord' },
+  { label: '自動錄影', value: 'auto_record' },
   { label: '加到最愛', value: 'isFavorite' },
 ];
 
@@ -26,7 +26,7 @@ const useChannelColumns = (porps: { setLiveUrl: any; }) => {
     const statusUpdate = {
       urlOrNameOrId: id,  // 替换为你的实际 URL 或 ID
       isFavorite: checkedValues.includes('isFavorite'),
-      autoRecord: checkedValues.includes('autoRecord'),
+      auto_record: checkedValues.includes('auto_record'),
       viewed: checkedValues.includes('viewed')
     };
     updateListStatus(statusUpdate)
@@ -140,11 +140,11 @@ const useChannelColumns = (porps: { setLiveUrl: any; }) => {
     },
     {
       title: '自動錄影',
-      dataIndex: 'autoRecord',
-      key: 'autoRecord',
+      dataIndex: 'auto_record',
+      key: 'auto_record',
       align: 'center',
-      render: (autoRecord) => {
-        return <Text>{autoRecord == true ? '自動錄影' : '不自動錄影'}</Text>;
+      render: (auto_record) => {
+        return <Text>{auto_record == true ? '自動錄影' : '不自動錄影'}</Text>;
       },
       width: 100,
       filters: [
@@ -158,7 +158,7 @@ const useChannelColumns = (porps: { setLiveUrl: any; }) => {
       align: 'center',
       render: (channel) => {
         const defaultValue = [];
-        if (channel.autoRecord) defaultValue.push('autoRecord');
+        if (channel.auto_record) defaultValue.push('auto_record');
         if (channel.isFavorite) defaultValue.push('isFavorite');
         return <Checkbox.Group
           options={liveOptions}

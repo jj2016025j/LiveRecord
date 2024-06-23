@@ -23,38 +23,11 @@ def read_json_file(file_path=JSON_FILE_PATH):
 
 def write_json_file(data_store):
     """
-    安全地写入 JSON 文件
+    安全地寫入 JSON 文件
     """
     try:
         with open(JSON_FILE_PATH, 'w', encoding='utf-8') as file:
             portalocker.lock(file, portalocker.LOCK_EX)
-            data_dict = dict(data_store)
-            
-            def filter_empty_keys(d):
-                if isinstance(d, dict):
-                    return {k: filter_empty_keys(v) for k, v in d.items() if v not in (None, '', [])}
-                elif isinstance(d, list):
-                    return [filter_empty_keys(v) for v in d if v not in (None, '', [])]
-                else:
-                    return d
-            
-            filtered_data_dict = filter_empty_keys(data_dict)
-            
-            if not filtered_data_dict:
-                return
-            
-            json.dump(filtered_data_dict, file, ensure_ascii=False, indent=4)
-            
-            portalocker.unlock(file)
-    except Exception as e:
-        print(f"寫入 JSON 文件時發生錯誤: {e}")
-        raise
-        
-def write_json_file(data_store):
-    try:
-        with open(JSON_FILE_PATH, 'w', encoding='utf-8') as file:
-            portalocker.lock(file, portalocker.LOCK_EX)
-            
             data_dict = dict(data_store)
             
             def filter_empty_keys(d):

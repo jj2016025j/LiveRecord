@@ -7,11 +7,11 @@ def add_live_stream(data):
     :param data: LiveStream 實例
     """
     query = """
-    INSERT INTO live_list (id, name, url, status, isFavorite, autoRecord, viewed, live_stream_url, preview_image, createTime, lastViewTime, serial_number)
+    INSERT INTO live_list (id, name, url, status, isFavorite, auto_record, viewed, live_stream_url, preview_image, createTime, lastViewTime, serial_number)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     params = (
-        data.id, data.name, data.url, data.status, data.isFavorite, data.autoRecord,
+        data.id, data.name, data.url, data.status, data.isFavorite, data.auto_record,
         data.viewed, data.live_stream_url, data.preview_image, data.createTime,
         data.lastViewTime, data.serial_number
     )
@@ -25,12 +25,12 @@ def update_live_stream(data):
     """
     query = """
     UPDATE live_list 
-    SET name = %s, url = %s, status = %s, isFavorite = %s, autoRecord = %s, viewed = %s,
+    SET name = %s, url = %s, status = %s, isFavorite = %s, auto_record = %s, viewed = %s,
         live_stream_url = %s, preview_image = %s, createTime = %s, lastViewTime = %s, serial_number = %s
     WHERE id = %s
     """
     params = (
-        data.name, data.url, data.status, data.isFavorite, data.autoRecord, data.viewed,
+        data.name, data.url, data.status, data.isFavorite, data.auto_record, data.viewed,
         data.live_stream_url, data.preview_image, data.createTime, data.lastViewTime,
         data.serial_number, data.id
     )

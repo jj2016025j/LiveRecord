@@ -14,7 +14,7 @@ def main():
         'url': 'http://example.com/stream',
         'status': 'offline',
         'isFavorite': False,
-        'autoRecord': False,
+        'auto_record': False,
         'viewed': False,
         'live_stream_url': '',
         'preview_image': '',

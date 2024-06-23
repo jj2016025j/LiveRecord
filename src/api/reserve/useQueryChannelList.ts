@@ -8,7 +8,7 @@ import {
 import { axiosRoot } from '@/utils/axiosRoot';
 
 type Filters = {
-  autoRecord: string[] | null,
+  auto_record: string[] | null,
   preview_image: string[] | null,
   status: string[] | null,
 }
@@ -26,7 +26,7 @@ type ChannelOptions = {
   status: TradeTypeNum;
   // size: number[];
   // viewers: number
-  autoRecord: boolean,
+  auto_record: boolean,
   isFavorite: boolean,
   viewed: boolean,
 };
@@ -77,7 +77,7 @@ const useQueryChannelList = (useProps: UseTestMutationProps<ChannelListRes, Chan
     //       status: TradeTypeNum.CustomerBuy,
     //       size: [720, 1080],
     //       viewers: 1000,
-    //       autoRecord: true,
+    //       auto_record: true,
     //       isFavorite: true,
     //       viewed: false,
     //     };

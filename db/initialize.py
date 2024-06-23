@@ -7,6 +7,50 @@ import os
 import mysql.connector
 from mysql.connector import errorcode
 
+def create_data_store():
+    """
+    創建並初始化數據存儲
+    """
+    manager = multiprocessing.Manager()
+    data_store = manager.dict({
+        "live_list": [],
+        "recording_status": {},
+        "favorites": [],
+        "auto_record": [],
+        "search_history": [],
+        "offline": [],
+        "recording_list": [],
+        "online_processes": {},
+        "online_users": 0,
+        "offline_users": 0,
+        "online_users_last_time": 0,
+        "offline_users_last_time": 0,
+    })
+    data_lock = manager.Lock()
+    return data_store, data_lock
+
+def initialize_data_store(data_store, data_lock):
+    """
+    初始化直播流列表資料
+    """
+    try:
+        live_list = get_all_live_streams()
+        auto_record = [item["url"] for item in live_list if item.get("auto_record")]
+        favorites = [item["id"] for item in live_list if item.get("isFavorite")]
+
+        with data_lock:
+            data_store["live_list"] = live_list
+            data_store["online"] = []
+            data_store["offline"] = []
+            data_store["auto_record"] = auto_record
+            data_store["favorites"] = favorites
+
+        now_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f" =================== {now_time} 資料初始化完成 =================== ")
+
+    except Exception as e:
+        print(f"初始化資料庫時發生錯誤: {e}")
+        
 def setup_db():
     """
     初始化資料庫和資料表
@@ -41,7 +85,7 @@ def initialize_tables():
             "  url VARCHAR(255),"
             "  status VARCHAR(50),"
             "  isFavorite BOOLEAN,"
-            "  autoRecord BOOLEAN,"
+            "  auto_record BOOLEAN,"
             "  viewed BOOLEAN,"
             "  live_stream_url VARCHAR(255),"
             "  preview_image VARCHAR(255),"
@@ -73,47 +117,3 @@ def initialize_tables():
                     print(err.msg)
         cursor.close()
         conn.close()
-
-def create_data_store():
-    """
-    創建並初始化數據存儲
-    """
-    manager = multiprocessing.Manager()
-    data_store = manager.dict({
-        "live_list": [],
-        "recording_status": {},
-        "favorites": [],
-        "auto_record": [],
-        "search_history": [],
-        "offline": [],
-        "recording_list": [],
-        "online_processes": {} ,
-        "online_users": 0,
-        "offline_users": 0,
-        "online_users_last_time": 0,
-        "offline_users_last_time": 0,
-    })
-    data_lock = manager.Lock()
-    return data_store, data_lock
-
-def initialize_data_store(data_store, data_lock):
-    """
-    初始化直播流列表資料。
-    """
-    try:
-        live_list = get_all_live_streams()
-        autoRecord = [item["url"] for item in live_list if item.get("autoRecord")]
-        favorites = [item["id"] for item in live_list if item.get("isFavorite")]
-
-        with data_lock:
-            data_store["live_list"] = live_list
-            data_store["online"] = []
-            data_store["offline"] = []
-            data_store["autoRecord"] = autoRecord
-            data_store["favorites"] = favorites
-
-        now_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        print(f" =================== {now_time} 資料初始化完成 =================== ")
-        
-    except Exception as e:
-        print(f"初始化資料庫時發生錯誤: {e}")

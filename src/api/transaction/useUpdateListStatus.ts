@@ -7,7 +7,7 @@ type ManualBlockchainConfirmRes = {
 type ManualBlockchainConfirmProps = {
   urlOrNameOrId: string | undefined
   isFavorite: boolean
-  autoRecord: boolean
+  auto_record: boolean
   viewed: boolean
 };
 type OtherProps = {};

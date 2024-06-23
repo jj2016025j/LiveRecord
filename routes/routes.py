@@ -51,7 +51,7 @@ def setup_routes(app, data_store, data_lock):
         item = get_live_stream_by_url_or_name(url_or_name_or_id)
         if item:
             item.isFavorite = data["isFavorite"]
-            item.autoRecord = data["autoRecord"]
+            item.auto_record = data["auto_record"]
             item.viewed = data["viewed"]
             update_live_stream(item)
             return jsonify(item), 200
@@ -61,7 +61,7 @@ def setup_routes(app, data_store, data_lock):
     @handle_errors
     def get_channels():
         channels = get_all_live_streams()
-        auto_record_channels = [channel for channel in channels if channel.autoRecord]
+        auto_record_channels = [channel for channel in channels if channel.auto_record]
         return jsonify(auto_record_channels), 200
 
     @app.route('/api/getlist', methods=['POST'])

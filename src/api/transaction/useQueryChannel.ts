@@ -9,7 +9,7 @@ type QueryChannelRes = {
   status: TradeTypeNum | string;
   // size: number[];
   // viewers: number
-  autoRecord: boolean,
+  auto_record: boolean,
   isFavorite: boolean,
   viewed: boolean,
   // LiveUrl: string,
