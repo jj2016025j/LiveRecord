@@ -2,7 +2,7 @@ from flask import request, jsonify
 from utils.error_handling import handle_errors
 from services.data_service import filter_items, update_item_status, add_new_item
 from services.recording_service import start_recording, stop_recording
-from db.operations import get_live_stream_by_url_or_name, delete_live_stream, get_all_live_streams, get_live_stream_by_id, update_live_stream
+from db.operations import get_live_stream_by_url_or_name_or_id, delete_live_stream, get_all_live_streams, get_live_stream_by_id, update_live_stream
 from datetime import datetime
 
 def setup_routes(app, data_store, data_lock):
@@ -20,7 +20,7 @@ def setup_routes(app, data_store, data_lock):
         if not url_or_name_or_id:
             return jsonify({"message": "未提供網址或名稱或ID"}), 400
 
-        existing_item = get_live_stream_by_url_or_name(url_or_name_or_id)
+        existing_item = get_live_stream_by_url_or_name_or_id(url_or_name_or_id)
         if existing_item:
             updated_item = update_item_status(existing_item, data_store, data_lock)
             return jsonify(updated_item.__dict__), 200
@@ -46,17 +46,26 @@ def setup_routes(app, data_store, data_lock):
     @app.route('/api/updateliststatus', methods=['PUT'])
     @handle_errors
     def update_list_status():
-        data = request.json
-        url_or_name_or_id = data['urlOrNameOrId']
-        item = get_live_stream_by_url_or_name(url_or_name_or_id)
-        if item:
-            item.isFavorite = data["isFavorite"]
-            item.auto_record = data["auto_record"]
-            item.viewed = data["viewed"]
-            update_live_stream(item)
-            return jsonify(item), 200
-        return jsonify({"message": "Item not found"}), 404
+        try:
+            data = request.json
+            url_or_name_or_id = data['urlOrNameOrId']
+            item = get_live_stream_by_url_or_name_or_id(url_or_name_or_id)
+            print(f"SQL 查詢成功:{item}")
+            if item:
+                item.isFavorite = data["isFavorite"]
+                item.auto_record = data["auto_record"]
+                item.viewed = data["viewed"]
+                print(f"更新資料:{item}")
+                print(f"更新資料:{item.isFavorite}")
+                print(f"更新資料:{item.auto_record}")
 
+                update_live_stream(item)
+                return jsonify(item.__dict__), 200
+            return jsonify({"message": "Item not found"}), 404
+        except Exception as e:
+            print(f"更新列表狀態時發生錯誤: {e}")
+            return jsonify({"message": str(e)}), 500
+        
     @app.route('/api/channels', methods=['GET'])
     @handle_errors
     def get_channels():

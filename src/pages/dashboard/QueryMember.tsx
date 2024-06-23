@@ -41,7 +41,14 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
 
   const maxLength = 30
   const url = ChannelInfo?.url || ''
-  const needsTruncation = url.length > maxLength;
+  const option = [];
+  if (ChannelInfo?.auto_record === true) {
+    option.push('auto_record');
+  }
+  if (ChannelInfo?.isFavorite === true) {
+    option.push('isFavorite');
+  }
+    const needsTruncation = url.length > maxLength;
   // const truncatedText = needsTruncation
   //   ? `${url.slice(0, 4)}...${url.slice(-4)}`
   //   : url;
@@ -127,7 +134,7 @@ const QueryMember: React.FunctionComponent<IQueryMemberProps> = ({ setLiveUrl })
         children: (
           <Checkbox.Group
             options={options}
-            defaultValue={['auto_record']}
+            defaultValue={option}
             onChange={onChange}
           />
         ),

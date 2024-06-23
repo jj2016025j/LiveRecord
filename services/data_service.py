@@ -41,7 +41,7 @@ def update_item_status(existing_item, data_store, data_lock):
         filename_template = generate_filename(existing_item.url)
         process = multiprocessing.Process(target=start_recording_process, args=(live_stream_url, filename_template, data_store, data_lock, existing_item.url))                   
         process.start()
-    print("更新直播流資料:", existing_item.__dict__)
+    # print("更新直播流資料:", existing_item.__dict__)
     update_live_stream(existing_item)
     return existing_item
 

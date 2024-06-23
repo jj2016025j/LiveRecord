@@ -57,6 +57,6 @@ def fetch_query(query, params=None):
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
-        print("SQL 查詢成功")
+        print(f"SQL 查詢成功:{len(rows)}")
         return rows
     return []

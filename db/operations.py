@@ -72,8 +72,31 @@ def get_live_stream_by_url_or_name(url_or_name):
     params = (url_or_name, url_or_name)
     print("根據 URL 或名稱查詢直播流資料:", url_or_name)
     rows = fetch_query(query, params)
+    print(f"SQL 查詢成功:{len(rows)}")
+
     if rows:
         row = rows[0]
+        return LiveStream(**row)
+    return None
+
+def get_live_stream_by_url_or_name_or_id(identifier):
+    """
+    根據 URL、名稱或 ID 查詢直播流資料
+    :param identifier: 直播流 URL、名稱或 ID
+    :return: LiveStream 實例
+    """
+    query = "SELECT * FROM live_list WHERE url = %s OR name = %s OR id = %s"
+    params = (identifier, identifier, identifier)
+    print("根據 URL、名稱或 ID 查詢直播流資料:", identifier)
+    rows = fetch_query(query, params)
+    print(f"SQL 查詢成功: {len(rows)} 條記錄")
+
+    if rows:
+        row = rows[0]
+        # 转换数据库中的 1 和 0 为布尔值
+        row['isFavorite'] = bool(row['isFavorite'])
+        row['auto_record'] = bool(row['auto_record'])
+        row['viewed'] = bool(row['viewed'])
         return LiveStream(**row)
     return None
 

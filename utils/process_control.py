@@ -167,7 +167,7 @@ def monitor_streams(data_store, data_lock):
 
             for url in autoRecord_list:
                 if url in recording_list:
-                    print(f"{url} 正在錄製中，跳過...")
+                    # print(f"{url} 正在錄製中，跳過...")
                     continue
 
                 live_stream_url, status = repeat_get_live_stream_url(url)
